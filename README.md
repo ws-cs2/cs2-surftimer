@@ -6,6 +6,10 @@ This should work with multiple people on a server, however I haven't tested that
 
 Times are NOT persistant across map loads AND the timer only works on [surf_beginner](https://steamcommunity.com/sharedfiles/filedetails/?id=3070321829&searchtext=surf_beginner)
 
+## Servers
+
+[KZG | CS2 Surf](https://join.kzg.gg/cs2-surf) - `103.212.224.45:27085`
+
 ## Discord
 
 Need help, interested in running a dedicated server or want to make some improvments? https://discord.gg/Ms3AdWdH4X
