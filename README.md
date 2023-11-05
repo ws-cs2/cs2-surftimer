@@ -6,6 +6,10 @@ This should work with multiple people on a server, however I haven't tested that
 
 Times are NOT persistant across map loads AND the timer only works on [surf_beginner](https://steamcommunity.com/sharedfiles/filedetails/?id=3070321829&searchtext=surf_beginner)
 
+## Discord
+
+Need help, interested in running a dedicated server or want to make some improvments? https://discord.gg/Ms3AdWdH4X
+
 ## Installation
 
 First will first need to [install Metamod](https://www.sourcemm.net/downloads.php?branch=dev). Then install the [Lua Unlocker](https://github.com/Source2ZE/LuaUnlocker) and optionally [Movement Unlocker](https://github.com/Source2ZE/MovementUnlocker).
