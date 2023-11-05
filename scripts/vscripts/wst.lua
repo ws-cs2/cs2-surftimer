@@ -15,12 +15,12 @@ local start_zone_1 = Vector(-448.150726, -47.964149, 320)
 local start_zone_2 = Vector(191.463989, 257.725311, 500)
 
 -- End of S1
-local end_zone_1 = Vector(-419.165283, 1707.492920, -383.968750)
-local end_zone_2 = Vector(169.428925, 1999.968750, -200.96875)
+-- local end_zone_1 = Vector(-419.165283, 1707.492920, -383.968750)
+-- local end_zone_2 = Vector(169.428925, 1999.968750, -200.96875)
 
 -- End of map
--- local end_zone_1 = Vector(-4544.320312, 4868.677734, 3096)
--- local end_zone_2 = Vector(-6078.667480, 5248.378418, 3296)
+local end_zone_1 = Vector(-4544.320312, 4868.677734, 3096)
+local end_zone_2 = Vector(-6078.667480, 5248.378418, 3296)
 
 function CalculateBoxFromVectors(v1, v2)
     local mins = Vector(math.min(v1.x, v2.x), math.min(v1.y, v2.y), math.min(v1.z, v2.z))
