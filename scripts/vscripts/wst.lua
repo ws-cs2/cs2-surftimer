@@ -93,7 +93,7 @@ end, nil, 0)
 
 Convars:RegisterCommand("wst_tele", function()
     local player = Convars:GetCommandClient()
-    if player.cpSaved then
+    if player.cp_saved then
         player.timer = nil
         player:SetAbsOrigin(player.cp_origin)
         player:SetAngles(player.cp_angles.x, player.cp_angles.y, player.cp_angles.z)
@@ -106,10 +106,7 @@ Convars:RegisterCommand("wst_top", function()
     local topPlayers = getTopPlayers(10)
 
     for i, p in ipairs(topPlayers) do
-        print(i, p)
-        debugPrintTable(p)
         local position, total_players = getPlayerPosition(p.steam_id)
-        print(position, total_players)
 
         -- TODO: This doesn't work?
         -- UTIL_MessageText(player.user_id, "[WST] " .. position .. "/" .. total_players .. " " .. p.name .. " " .. p.time,
