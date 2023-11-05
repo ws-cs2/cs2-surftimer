@@ -22,7 +22,7 @@ sv_cheats 0
 
 ## Commands
 
-- wsr_r: Restarts your timer and teleports you to the startzone
+- wst_r: Restarts your timer and teleports you to the startzone
 - wst_top: prints the top 10 times to chat
 - wst_cp: Checkpoint (saveloc)
 - wst_tele: Teleport to checkpoint (stops your timer)
