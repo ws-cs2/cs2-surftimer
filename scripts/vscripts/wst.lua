@@ -237,7 +237,6 @@ function CreateZone(name, v1, v2, r, g, b, a, OnStartTouch, OnEndTouch)
     trigger:SetAbsOrigin(center)
 
     trigger:SetContextThink(nil, function()
-        print("ACTIVE")
         local secondsToDrawBox = 5
         DebugDrawBox(center, mins, maxs, r, g, b, a, secondsToDrawBox)
         return secondsToDrawBox
