@@ -9,18 +9,41 @@ print("--------------------")
 print("Will's Surf Timer")
 print("--------------------")
 
+local start_zone_1 = nil
+local start_zone_2 = nil
 
--- Only works on surf beginner
-local start_zone_1 = Vector(-448.150726, -47.964149, 320)
-local start_zone_2 = Vector(191.463989, 257.725311, 500)
+local end_zone_1 = nil
+local end_zone_2 = nil
 
--- End of S1
--- local end_zone_1 = Vector(-419.165283, 1707.492920, -383.968750)
--- local end_zone_2 = Vector(169.428925, 1999.968750, -200.96875)
+function SplitVectorString(str)
+    -- split on comma
+    -- x y z
+    local split = {}
+    for s in string.gmatch(str, "([^,]+)") do
+        table.insert(split, s)
+    end
+    -- Convert to numbers
+    for i, s in ipairs(split) do
+        split[i] = tonumber(s)
+    end
+    -- Convert to vector
+    return Vector(split[1], split[2], split[3])
+end
 
--- End of map
-local end_zone_1 = Vector(-4544.320312, 4868.677734, 3096)
-local end_zone_2 = Vector(-6078.667480, 5248.378418, 3296)
+function LoadZones(zone_file_table)
+    print("Zones loaded from disk")
+    print("Zones Version: ", zone_file_table.version)
+    start_zone_1 = SplitVectorString(zone_file_table.data.start.v1)
+    start_zone_2 = SplitVectorString(zone_file_table.data.start.v2)
+
+    end_zone_1 = SplitVectorString(zone_file_table.data['end'].v1)
+    end_zone_2 = SplitVectorString(zone_file_table.data['end'].v2)
+end
+
+local zones = LoadKeyValues('scripts/wst_zones/surf_beginner.txt')
+LoadZones(zones)
+
+-- UTILS
 
 function CalculateBoxFromVectors(v1, v2)
     local mins = Vector(math.min(v1.x, v2.x), math.min(v1.y, v2.y), math.min(v1.z, v2.z))
@@ -53,6 +76,14 @@ function FormatTime(time)
     local milliseconds = (time - math.floor(time)) * 1000
     return string.format("%02d:%02d:%03d", minutes, seconds, milliseconds)
 end
+
+function TeleportToStartZone(player)
+    local center, _, _ = CalculateBoxFromVectors(start_zone_1, start_zone_2)
+    player:SetAbsOrigin(center)
+    player:SetVelocity(Vector(0, 0, 0))
+end
+
+-- DEBUG
 
 function debugPrintTable(table)
     for k, v in pairs(table) do
@@ -105,17 +136,14 @@ Convars:RegisterCommand("wst_top", function()
     local player = Convars:GetCommandClient()
     local topPlayers = getTopPlayers(10)
 
-    for i, p in ipairs(topPlayers) do
+    for i, p in ipairs(topPlayers)
+    do
         local position, total_players = getPlayerPosition(p.steam_id)
-
-        -- TODO: This doesn't work?
-        -- UTIL_MessageText(player.user_id, "[WST] " .. position .. "/" .. total_players .. " " .. p.name .. " " .. p.time,
-        --     255, 255,
-        --     255, 0)
-
         ScriptPrintMessageChatAll("[WST] " .. position .. "/" .. total_players .. " " .. p.name .. " " .. p.time)
     end
 end, nil, 0)
+
+
 
 -- Development only
 -- Convars:RegisterCommand("wst_debug_reload", function()
@@ -129,11 +157,6 @@ Convars:RegisterCommand("wst_r", function()
     TeleportToStartZone(player)
 end, nil, 0)
 
-function TeleportToStartZone(player)
-    local center, _, _ = CalculateBoxFromVectors(start_zone_1, start_zone_2)
-    player:SetAbsOrigin(center)
-    player:SetVelocity(Vector(0, 0, 0))
-end
 
 function PlayerTick(player)
     local velocity = player:GetVelocity()
