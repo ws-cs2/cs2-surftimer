@@ -39,7 +39,7 @@ function printleaderboard()
 end
 
 print('-----------------')
-print('Leaderboard.lua loaded')
+print('wst-leaderboard.lua loaded')
 
 
 
