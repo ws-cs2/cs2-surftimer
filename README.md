@@ -2,8 +2,6 @@
 
 A experimental surf timer written in 1 day using the depricated Lua [VScript API](https://cs2.poggu.me/dumped-data/vscript-list).
 
-This should work with multiple people on a server, however I haven't tested that. This is just a v0 and is likely very broken.
-
 Times are NOT persistant across map loads AND the timer only works on [surf_beginner](https://steamcommunity.com/sharedfiles/filedetails/?id=3070321829&searchtext=surf_beginner)
 
 ## Servers
