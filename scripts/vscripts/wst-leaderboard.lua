@@ -23,6 +23,7 @@ function updateLeaderboard(player, time)
     end
     -- If player is new, insert them into the leaderboard
     table.insert(leaderboard, leaderboardPlayer)
+    sortLoaderboard()
 end
 
 -- Function to sort the leaderboard
