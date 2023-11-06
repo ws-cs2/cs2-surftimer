@@ -87,6 +87,34 @@ File format:
 }
 ```
 
+## Zones
+
+Zone files go in `scripts/wst_zones/<mapname>.txt`
+
+v1 & v2 are the position in world space of two opposite corners of a box. Come discuss in discord if you are zoning maps so we can add the zones back into this repo.
+
+surf_beginner example:
+```
+"Zones"
+{
+    "version" "_1.0"
+    "data"
+    {
+        "start"
+        {
+            "v1" "-448.150726, -47.964149, 320"
+            "v2" "191.463989, 257.725311, 500"
+        }
+        "end"
+        {
+            "v1" "-4544.320312, 4868.677734, 3096"
+            "v2" "-6078.667480, 5248.378418, 3296"
+        }
+    }
+}
+```
+
+
 ## Future of this plugin
 
 The goal for this project is just to make something that works - VScript is depreciated and will probably stop working at some point!
