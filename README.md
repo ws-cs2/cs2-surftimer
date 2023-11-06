@@ -117,7 +117,7 @@ surf_beginner example:
 
 ## Future of this plugin
 
-The goal for this project is just to make something that works - VScript is depreciated and will probably stop working at some point!
+The goal for this project is just to make something that works for the short term - VScript is depreciated and will probably stop working at some point!
 
 ## Video
 
