@@ -8,6 +8,10 @@ require("wst-leaderboard")
 print("--------------------")
 print("Will's Surf Timer")
 print("--------------------")
+local current_map = GetMapName()
+print("Map: " .. current_map)
+-- Big assumption here that a new script VM is made on map change
+-- Seems to be true for changelevel & map commands
 
 local start_zone_1 = nil
 local start_zone_2 = nil
@@ -40,7 +44,12 @@ function LoadZones(zone_file_table)
     end_zone_2 = SplitVectorString(zone_file_table.data['end'].v2)
 end
 
-local zones = LoadKeyValues('scripts/wst_zones/surf_beginner.txt')
+local zones = LoadKeyValues('scripts/wst_zones/' .. current_map .. '.txt')
+if zones == nil then
+    print("Failed to load WST, there is no zone file for this map: " .. current_map)
+    return
+end
+
 LoadZones(zones)
 
 -- UTILS
@@ -343,6 +352,8 @@ end
 
 Convars:RegisterCommand("wst_debug", function()
     local player = Convars:GetCommandClient()
+    local map = GetMapName()
+    print("Map: " .. map)
     debugPrintPlayer(player)
 
     DeepPrintTable(player_connect_table)
@@ -367,6 +378,7 @@ ListenToGameEvent("player_spawn", function(event)
     user.name = player_connect.name
     user.ip_address = player_connect.address
 end, nil)
+
 
 if not pluginActivated then
     ListenToGameEvent("round_start", Activate, nil)

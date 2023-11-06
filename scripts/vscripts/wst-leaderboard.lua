@@ -1,5 +1,7 @@
 -- Table to store players
-local vdfLeaderboard = LoadKeyValues('scripts/wst_records/surf_beginner.txt')
+local current_map = GetMapName()
+
+local vdfLeaderboard = LoadKeyValues('scripts/wst_records/' .. current_map .. '.vdf')
 local leaderboard = {}
 
 if vdfLeaderboard ~= nil then
@@ -48,7 +50,7 @@ function updateLeaderboard(player, time)
         name = player.name,
         time = time
     }
-    print('[WST_MSG] map_complete surf_beginner ' ..
+    print('[WST_MSG] map_complete ' .. current_map .. ' ' ..
         leaderboardPlayer.steam_id .. ' ' .. leaderboardPlayer.time .. ' "' .. leaderboardPlayer.name .. '"')
     -- Check if the player already exists and update their time
     for i, p in ipairs(leaderboard) do
