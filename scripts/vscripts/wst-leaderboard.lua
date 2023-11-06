@@ -1,10 +1,44 @@
--- Todo: Figure out how to seralize this to disk.
---       If there is nothing within the vscript API then my idea is to have a external program thats
---       reading the output of SRCDS. When we finish a map we can write the times to console (stdout) and then
---       serialize it as a leaderboard.lua which is loaded on map start.
-
 -- Table to store players
+local vdfLeaderboard = LoadKeyValues('scripts/wst_records/surf_beginner.txt')
 local leaderboard = {}
+
+if vdfLeaderboard ~= nil then
+    print('Leaderboard loaded from disk')
+    print('Leaderboard Version: ', vdfLeaderboard.version)
+
+    if vdfLeaderboard.version ~= '_1.0' then
+        print('Leaderboard version is not 1.0, ignoring')
+        return
+    end
+
+    local data = vdfLeaderboard.data
+    for key, value in pairs(data) do
+        local value = {
+            steam_id = key,
+            name = value.name,
+            time = value.time
+        }
+        table.insert(leaderboard, value)
+    end
+else
+    print('Leaderboard not found, creating new one')
+end
+
+function sortLeaderboard()
+    table.sort(leaderboard, function(a, b) return tonumber(a.time) < tonumber(b.time) end)
+end
+
+sortLeaderboard()
+
+function printleaderboard()
+    for i, player in ipairs(leaderboard) do
+        print(i, player.steam_id, player.name, player.time)
+    end
+end
+
+print('-----------------')
+print('Leaderboard.lua loaded')
+
 
 
 -- Function to insert or update a player in the leaderboard
@@ -14,21 +48,24 @@ function updateLeaderboard(player, time)
         name = player.name,
         time = time
     }
+    print('[WST_MSG] map_complete surf_beginner ' ..
+        leaderboardPlayer.steam_id .. ' ' .. leaderboardPlayer.time .. ' "' .. leaderboardPlayer.name .. '"')
     -- Check if the player already exists and update their time
     for i, p in ipairs(leaderboard) do
         if p.steam_id == leaderboardPlayer.steam_id then
-            leaderboard[i].time = leaderboardPlayer.time
+            -- If the player already exists and their time is better, update it
+            if p.time > leaderboardPlayer.time then
+                leaderboard[i].time = leaderboardPlayer.time
+                sortLeaderboard()
+                return
+            end
+            -- If the player already exists and their time is worse, do nothing
             return
         end
     end
     -- If player is new, insert them into the leaderboard
     table.insert(leaderboard, leaderboardPlayer)
-    sortLoaderboard()
-end
-
--- Function to sort the leaderboard
-function sortLeaderboard()
-    table.sort(leaderboard, function(a, b) return a.time < b.time end)
+    sortLeaderboard()
 end
 
 -- Function to get a player's position
