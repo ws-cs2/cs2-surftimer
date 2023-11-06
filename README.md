@@ -37,6 +37,8 @@ sv_cheats 0
 
 To persist times in a dedicated server, you must run cs2 via the python launcher script provided (See below to learn why)
 
+The plugin should work without using the launcher, however your times will not save.
+
 To use the launcher
 
 ```
