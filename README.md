@@ -2,7 +2,9 @@
 
 A experimental surf timer using the depricated Lua [VScript API](https://cs2.poggu.me/dumped-data/vscript-list).
 
-The timer only works on [surf_beginner](https://steamcommunity.com/sharedfiles/filedetails/?id=3070321829&searchtext=surf_beginner)
+~~The timer only works on [surf_beginner](https://steamcommunity.com/sharedfiles/filedetails/?id=3070321829&searchtext=surf_beginner)~~
+
+The timer now supports multiple maps, only surf_beginner is zoned for now!
 
 ## Servers
 
