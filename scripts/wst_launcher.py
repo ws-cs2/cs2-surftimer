@@ -266,9 +266,10 @@ class KeyValues(dict):
 # Set up a queue to share data between the output-reading thread and the main thread.
 output_queue = queue.Queue()
 
+
 def enqueue_output(out, queue):
     for line in iter(out.readline, b''):
-        queue.put(line)
+        queue.put(line.decode('utf-8', errors='replace'))
     out.close()
 
 # Get the command-line arguments except the script name itself.
