@@ -1,10 +1,16 @@
 # Will's CS2 SurfTimer
 
-A experimental surf timer using the depricated Lua [VScript API](https://cs2.poggu.me/dumped-data/vscript-list).
+A experimental simple surf timer using the depricated Lua [VScript API](https://cs2.poggu.me/dumped-data/vscript-list).
 
-~~The timer only works on [surf_beginner](https://steamcommunity.com/sharedfiles/filedetails/?id=3070321829&searchtext=surf_beginner)~~
+![image](https://github.com/ws-cs2/cs2-surftimer/assets/149922947/f97e68af-94d2-4a7b-ad80-e24492a8191c)
 
-The timer now supports multiple maps, only surf_beginner is zoned for now!
+## Features
+ - Hud with Time, Speed and Rank
+ - Simple leaderboard
+ - Saving and loading times
+ - Configurable Zones
+ - Multiple Endzones in a map
+ - Basic checkpoint/savloc
 
 ## Servers
 
@@ -17,8 +23,9 @@ Need help, interested in running a dedicated server or want to make some improvm
 
 ## Commands
 
+- wst_help: displays a help menu
 - wst_r: Restarts your timer and teleports you to the startzone
-- wst_top: prints the top 10 times to chat
+- wst_top: prints the top 10 times to console
 - wst_cp: Checkpoint (saveloc)
 - wst_tele: Teleport to checkpoint (stops your timer)
 
