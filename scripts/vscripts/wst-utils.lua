@@ -28,8 +28,9 @@ function CalculateExtentsFromMinsMaxs(mins, maxs)
 end
 
 function FormatTime(time)
-    local minutes = math.floor(time / 60)
-    local seconds = time - minutes * 60
-    local milliseconds = (time - math.floor(time)) * 1000
+    local abs = math.abs(time)
+    local minutes = math.floor(abs / 60)
+    local seconds = abs - minutes * 60
+    local milliseconds = (abs - math.floor(abs)) * 1000
     return string.format("%02d:%02d:%03d", minutes, seconds, milliseconds)
 end

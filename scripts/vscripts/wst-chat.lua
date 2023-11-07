@@ -3,6 +3,7 @@ function ConvertTextToColoredChatString(text)
         ["<GOLD>"] = "\x10",  -- Gold color
         ["<WHITE>"] = "\x01", -- White color
         ["<GREEN>"] = "\x04", -- Green color
+        ["<RED>"] = "\x02"    -- Red color
     }
 
     for colorCode, escapeSequence in pairs(colorMap) do

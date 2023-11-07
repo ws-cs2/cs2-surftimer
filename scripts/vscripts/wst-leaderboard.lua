@@ -76,10 +76,10 @@ function getPlayerPosition(steam_id)
 
     for pos, player in ipairs(leaderboard) do
         if player.steam_id == steam_id then
-            return pos, total_players
+            return pos, total_players, player.time
         end
     end
-    return nil -- player not found
+    return nil, total_players, nil -- player not found
 end
 
 function tablelength(T)
@@ -97,4 +97,11 @@ function getTopPlayers(n)
         end
     end
     return topPlayers
+end
+
+function getWorldRecordTime()
+    if leaderboard[1] ~= nil then
+        return leaderboard[1].time
+    end
+    return nil
 end

@@ -10,6 +10,7 @@ require("wst-chat")
 require("wst-cvars")
 require("wst-debug")
 require("wst-utils")
+require("wst-hud")
 
 print("--------------------")
 print("Will's Surf Timer " .. CURRENT_VERSION)
@@ -21,6 +22,8 @@ print("Map: " .. CURRENT_MAP)
 
 
 local DRAW_ZONES = false
+local START_ZONE_SPEED_CAP_XY = 400
+
 local PLUGIN_ACTIVATED = false
 local WORLDENT = nil
 
@@ -35,6 +38,17 @@ local END_ZONE_2_V1 = nil
 local END_ZONE_2_V2 = nil
 
 local PLAYER_CONNECT_TABLE = {}
+
+function SendTextToClient(player, text)
+    local ptClientCommand = Entities:FindByClassname(nil, "point_clientcommand")
+
+    if ptClientCommand == nil then
+        ptClientCommand = SpawnEntityFromTableSynchronous("point_clientcommand",
+            { targetname = "wst_point_clientcommand" })
+    end
+
+    DoEntFireByInstanceHandle(ptClientCommand, "command", "echo " .. text, 0.1, player, player)
+end
 
 function CreateStartZone(v1, v2)
     local OnStartTouch = function(a, b)
@@ -66,12 +80,55 @@ function CreateEndZone(idx, v1, v2)
         end
 
         if player.timer ~= nil then
+            local wr = getWorldRecordTime()
+
+            local previousPosition, _, previousTime = getPlayerPosition(player.steam_id)
+
             local time = Time() - player.timer
             updateLeaderboard(player, time)
             local position, total_players = getPlayerPosition(player.steam_id)
-            ScriptPrintMessageChatAll(ConvertTextToColoredChatString("<GOLD>" ..
-                player.name .. " <WHITE>finished in <GOLD>" ..
-                FormatTime(time) .. " <WHITE>Rank <GOLD>" .. position .. "/" .. total_players))
+
+            local playerFinishMapMessage = "<GOLD>" .. player.name .. " <WHITE>finished in <GOLD>" .. FormatTime(time)
+            local wrDiffString = ""
+            if wr ~= nil then
+                local wrDiff = time - wr
+                if wrDiff > 0 then
+                    wrDiffString = " <WHITE>[WR<RED> +" .. FormatTime(wrDiff) .. "<WHITE>]"
+                elseif wrDiff <= 0 then
+                    wrDiffString = " <WHITE>[WR<GREEN> -" .. FormatTime(wrDiff) .. "<WHITE>]"
+                end
+            end
+            ScriptPrintMessageChatAll(ConvertTextToColoredChatString(playerFinishMapMessage .. wrDiffString))
+
+            if previousPosition == nil then
+                local newPlayerMessage = "<GOLD>" ..
+                    player.name .. " <WHITE>is now rank <GOLD>" .. position .. "/" .. total_players
+                ScriptPrintMessageChatAll(ConvertTextToColoredChatString(newPlayerMessage))
+            elseif time < previousTime then
+                local improvementTime = previousTime - time
+
+                local improvedPlayerMessage = "<GOLD>" ..
+                    player.name ..
+                    " <WHITE>improved with [<GREEN>-" ..
+                    FormatTime(improvementTime) .. "<WHITE>] Rank <GOLD>" .. position .. "/" .. total_players
+                ScriptPrintMessageChatAll(ConvertTextToColoredChatString(improvedPlayerMessage))
+            else
+                local worsePlayerMessage = "<GOLD>" ..
+                    player.name ..
+                    " <WHITE>missed their best time by [<RED>+" ..
+                    FormatTime(time - previousTime) .. "<WHITE>] Rank <GOLD>" .. position .. "/" .. total_players
+                ScriptPrintMessageChatAll(ConvertTextToColoredChatString(worsePlayerMessage))
+            end
+
+            local noPreviousRecords = wr == nil
+            local betPreviousWr = wr ~= nil and time < wr
+
+            if noPreviousRecords or betPreviousWr then
+                local newWRMessage = "<GOLD>" .. player.name .. " <WHITE>set a new <GOLD>WR <WHITE>with <GOLD>" ..
+                    FormatTime(time) .. "!"
+                ScriptPrintMessageChatAll(ConvertTextToColoredChatString(newWRMessage))
+            end
+
             player.timer = nil
         end
     end
@@ -154,7 +211,8 @@ function LoadZones(zone_file_table)
     end
 end
 
-local zones = LoadKeyValues('scripts/wst_zones/' .. CURRENT_MAP .. '.txt')
+local zones = LoadKeyValues('scripts/wst_zones/surf_beginner_debug.txt')
+--local zones = LoadKeyValues('scripts/wst_zones/' .. CURRENT_MAP .. '.txt')
 if zones == nil then
     print("Failed to load WST, there is no zone file for this map: " .. CURRENT_MAP)
     return
@@ -170,12 +228,34 @@ end
 
 Convars:RegisterCommand("wst_version", function()
     local player = Convars:GetCommandClient()
+    SendTextToClient(player, "Will's Surf Timer " .. CURRENT_VERSION)
+end, nil, 0)
 
-    local exampleText = "<GOLD>[WST]<WHITE> PLAYER_NAME <GOLD>finished in <GREEN>1:23.456"
-    local coloredChatString = ConvertTextToColoredChatString(exampleText)
-    print(coloredChatString)
-    ScriptPrintMessageChatAll(coloredChatString)
-    ScriptPrintMessageChatAll(" \x10[WST]\x01 PLAYER_NAME \x10finished in \x041:23.456")
+
+Convars:RegisterCommand("wst_help", function()
+    local player = Convars:GetCommandClient()
+    local text = "Will's Surf Timer"
+    local border = string.rep("-", string.len(text) + 4)
+    local middleLine = "| " .. text .. " |"
+    SendTextToClient(player, border)
+    SendTextToClient(player, middleLine)
+    SendTextToClient(player, border)
+    SendTextToClient(player, "\"https://github.com/ws-cs2/cs2-surftimer\"")
+    SendTextToClient(player, "")
+    SendTextToClient(player, "Respawn Bind:")
+    SendTextToClient(player, "bind t wst_r - Binds t on your keyboard to respawn, you can change t to any key")
+    SendTextToClient(player, "")
+    SendTextToClient(player, "Commands:")
+    SendTextToClient(player, "wst_r - Teleport to the start zone")
+    SendTextToClient(player, "wst_top - Show the top 10 players on this map")
+    SendTextToClient(player, "wst_cp - Save your current position")
+    SendTextToClient(player, "wst_tele - Teleport to your saved position (stops your timer)")
+    SendTextToClient(player, "wst_version - Show the version of the plugin")
+    SendTextToClient(player, "wst_help - Show this help message")
+    SendTextToClient(player, "")
+    SendTextToClient(player, "Credits:")
+    SendTextToClient(player, "will - Plugin creator")
+    SendTextToClient(player, "b3nny (FutureGN) - Zoning maps and testing")
 end, nil, 0)
 
 Convars:RegisterCommand("wst_cp", function()
@@ -204,7 +284,7 @@ Convars:RegisterCommand("wst_top", function()
     for i, p in ipairs(topPlayers)
     do
         local position, total_players = getPlayerPosition(p.steam_id)
-        ScriptPrintMessageChatAll("[WST] " .. position .. "/" .. total_players .. " " .. p.name .. " " .. p.time)
+        SendTextToClient(player, position .. "/" .. total_players .. " " .. p.name .. " " .. p.time)
     end
 end, nil, 0)
 
@@ -227,29 +307,19 @@ function PlayerTick(player)
     end
 
     if player.is_in_start_zone == true then
-        if speed > 350 then
+        if speed > START_ZONE_SPEED_CAP_XY then
             TeleportToStartZone(player)
         end
     end
 
+    -- TODO: See if I can space out the hud with unicode chars
+    -- local UNICODE_EMPTY_CHARACTER = "⠀"
 
-    local speedHTML = "<font color=\"white\">Speed:</font><font color=\"#6EA6DD\"> " ..
-        string.format("%06.2f", speed) .. "</font>"
-    local br = "<br>"
-
-    local html = ""
-    if player.timer ~= nil then
-        local currentTime = Time()
-        local timeHTML = "<font color=\"white\">Time:</font><font color=\"#2E9F65\"> " ..
-            FormatTime(currentTime - player.timer) .. "</font>"
-        html = timeHTML .. br .. speedHTML
-    else
-        html = speedHTML
-    end
+    local playerHtml = BuildPlayerHudHtml(player, speed)
 
     FireGameEvent("show_survival_respawn_status",
         {
-            ["loc_token"] = html,
+            ["loc_token"] = playerHtml,
             ["duration"] = 5,
             ["userid"] = player.user_id
         }
@@ -302,8 +372,26 @@ ListenToGameEvent("player_spawn", function(event)
     user.ip_address = player_connect.address
 end, nil)
 
+function ServerMessage()
+    ScriptPrintMessageChatAll(ConvertTextToColoredChatString(
+        "<GOLD>Type <GREEN>wst_help<GOLD> in console <GREEN>(~)<GOLD> for surf timer commands"))
+    return 90
+end
+
+function CreateServerMessageTimer()
+    local name = "wst_timer_info_target"
+    local existing = Entities:FindByName(nil, name)
+    if existing then
+        -- Kill trigger
+        existing:Kill()
+    end
+
+    local ent = SpawnEntityFromTableSynchronous("info_target", { targetname = "wst_timer_info_target" })
+    ent:SetContextThink(nil, ServerMessage, 10)
+end
 
 if not PLUGIN_ACTIVATED then
     ListenToGameEvent("round_start", Activate, nil)
+    CreateServerMessageTimer()
     PLUGIN_ACTIVATED = true
 end
