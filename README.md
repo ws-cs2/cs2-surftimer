@@ -8,8 +8,8 @@ The timer now supports multiple maps, only surf_beginner is zoned for now!
 
 ## Servers
 
-FutureGN Surf - `139.99.145.57:27019`
-[KZG | CS2 Surf](https://join.kzg.gg/cs2-surf) - `103.212.224.45:27085`
+ - FutureGN Surf - `139.99.145.57:27019`
+ - [KZG | CS2 Surf](https://join.kzg.gg/cs2-surf) - `103.212.224.45:27085`
 
 ## Discord
 
