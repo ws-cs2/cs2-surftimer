@@ -211,8 +211,8 @@ function LoadZones(zone_file_table)
     end
 end
 
-local zones = LoadKeyValues('scripts/wst_zones/surf_beginner_debug.txt')
---local zones = LoadKeyValues('scripts/wst_zones/' .. CURRENT_MAP .. '.txt')
+-- local zones = LoadKeyValues('scripts/wst_zones/surf_beginner_debug.txt')
+local zones = LoadKeyValues('scripts/wst_zones/' .. CURRENT_MAP .. '.txt')
 if zones == nil then
     print("Failed to load WST, there is no zone file for this map: " .. CURRENT_MAP)
     return
