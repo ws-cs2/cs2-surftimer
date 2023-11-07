@@ -345,7 +345,7 @@ full_command = ' '.join(command)
 print(f"Executing: {full_command}")
 
 # Start the subprocess and redirect the standard output and error to a pipe.
-proc = subprocess.Popen(full_command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1)
+proc = subprocess.Popen(full_command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1)
 
 # Start a thread to asynchronously read the process's output and put it in the queue.
 t = threading.Thread(target=enqueue_output, args=(proc.stdout, output_queue))
