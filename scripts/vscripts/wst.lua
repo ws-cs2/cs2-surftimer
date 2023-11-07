@@ -24,11 +24,15 @@ local DRAW_ZONES = false
 local PLUGIN_ACTIVATED = false
 local WORLDENT = nil
 
-local START_ZONE_1 = nil
-local START_ZONE_2 = nil
+local START_ZONE_V1 = nil
+local START_ZONE_V2 = nil
 
-local END_ZONE_1 = nil
-local END_ZONE_2 = nil
+-- Some maps have multiple endzones
+local END_ZONE_V1 = nil
+local END_ZONE_V2 = nil
+
+local END_ZONE_2_V1 = nil
+local END_ZONE_2_V2 = nil
 
 local PLAYER_CONNECT_TABLE = {}
 
@@ -54,7 +58,7 @@ function CreateStartZone(v1, v2)
     CreateZone("wst_trigger_startzone", v1, v2, 0, 230, 0, 10, OnStartTouch, OnEndTouch)
 end
 
-function CreateEndZone(v1, v2)
+function CreateEndZone(idx, v1, v2)
     local OnStartTouch = function(a, b)
         local player = b.activator
         if player:IsAlive() == false then
@@ -79,7 +83,7 @@ function CreateEndZone(v1, v2)
 
         player.timer = nil
     end
-    CreateZone("wst_trigger_endzone", v1, v2, 230, 0, 0, 10, OnStartTouch, OnEndTouch)
+    CreateZone("wst_trigger_endzone_" .. idx, v1, v2, 230, 0, 0, 10, OnStartTouch, OnEndTouch)
 end
 
 function CreateZone(name, v1, v2, r, g, b, a, OnStartTouch, OnEndTouch)
@@ -137,11 +141,17 @@ end
 function LoadZones(zone_file_table)
     print("Zones loaded from disk")
     print("Zones Version: ", zone_file_table.version)
-    START_ZONE_1 = SplitVectorString(zone_file_table.data.start.v1)
-    START_ZONE_2 = SplitVectorString(zone_file_table.data.start.v2)
+    START_ZONE_V1 = SplitVectorString(zone_file_table.data.start.v1)
+    START_ZONE_V2 = SplitVectorString(zone_file_table.data.start.v2)
 
-    END_ZONE_1 = SplitVectorString(zone_file_table.data['end'].v1)
-    END_ZONE_2 = SplitVectorString(zone_file_table.data['end'].v2)
+    END_ZONE_V1 = SplitVectorString(zone_file_table.data['end'].v1)
+    END_ZONE_V2 = SplitVectorString(zone_file_table.data['end'].v2)
+
+    -- Support multi endzone.
+    if zone_file_table.data['end2'] ~= nil then
+        END_ZONE_2_V1 = SplitVectorString(zone_file_table.data['end2'].v1)
+        END_ZONE_2_V2 = SplitVectorString(zone_file_table.data['end2'].v2)
+    end
 end
 
 local zones = LoadKeyValues('scripts/wst_zones/' .. CURRENT_MAP .. '.txt')
@@ -153,7 +163,7 @@ end
 LoadZones(zones)
 
 function TeleportToStartZone(player)
-    local center, _, _ = CalculateBoxFromVectors(START_ZONE_1, START_ZONE_2)
+    local center, _, _ = CalculateBoxFromVectors(START_ZONE_V1, START_ZONE_V2)
     player:SetAbsOrigin(center)
     player:SetVelocity(Vector(0, 0, 0))
 end
@@ -266,8 +276,11 @@ function Activate()
     WORLDENT = Entities:FindByClassname(nil, "worldent")
     WORLDENT:SetContextThink(nil, Tick, 0)
 
-    CreateStartZone(START_ZONE_1, START_ZONE_2)
-    CreateEndZone(END_ZONE_1, END_ZONE_2)
+    CreateStartZone(START_ZONE_V1, START_ZONE_V2)
+    CreateEndZone("1", END_ZONE_V1, END_ZONE_V2)
+    if END_ZONE_2_V1 ~= nil and END_ZONE_2_V2 ~= nil then
+        CreateEndZone("2", END_ZONE_2_V1, END_ZONE_2_V2)
+    end
 end
 
 ListenToGameEvent("player_connect", function(event)
