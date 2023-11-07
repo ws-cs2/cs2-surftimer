@@ -1,7 +1,7 @@
 -- Table to store players
 local current_map = GetMapName()
 
-local vdfLeaderboard = LoadKeyValues('scripts/wst_records/' .. current_map .. '.vdf')
+local vdfLeaderboard = LoadKeyValues('scripts/wst_records/' .. current_map .. '.txt')
 local leaderboard = {}
 
 if vdfLeaderboard ~= nil then

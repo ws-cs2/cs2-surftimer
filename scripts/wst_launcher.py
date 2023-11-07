@@ -295,11 +295,11 @@ else:
 # - game/bin/linuxsteamrt64/cs2 (linux executable)
 # - game/bin/win64/cs2.exe (windows executable)
 # - game/csgo/scripts/wst_launcher.py (this script)
-# - game/csgo/scripts/vscript/ (vscript directory)
-# - game/csgo/scripts/vscript/wst.lua (wst script)
-# - game/csgo/scripts/vscript/wst-leaderboard.lua (leaderboard script)
-# - game/csgo/scripts/vscript/wst_records (leaderboard data)
-# - game/csgo/scripts/vscript/wst_records/surf_beginner.txt (Valve KeyValue vdffile)
+# - game/csgo/scripts/vscripts/ (vscript directory)
+# - game/csgo/scripts/vscripts/wst.lua (wst script)
+# - game/csgo/scripts/vscripts/wst-leaderboard.lua (leaderboard script)
+# - game/csgo/scripts/wst_records (leaderboard data)
+# - game/csgo/scripts/wst_records/surf_beginner.txt (Valve KeyValue vdffile)
 
 # The path to the script directory should be calculated relative to the script's location
 script_dir = os.path.dirname(os.path.abspath(__file__))
