@@ -269,7 +269,8 @@ output_queue = queue.Queue()
 
 def enqueue_output(out, queue):
     for line in iter(out.readline, b''):
-        queue.put(line.decode('utf-8', errors='replace'))
+        decoded = line.decode('utf-8', errors='replace')
+        queue.put(decoded)
     out.close()
 
 # Get the command-line arguments except the script name itself.
@@ -332,9 +333,7 @@ if not os.path.isfile(executable_path):
 
 parsed_args = ['-dedicated']
 for arg in args:
-    if arg == '-dedicated':
-        pass
-    else:
+    if arg != '-dedicated':
         parsed_args.append(arg)
 
 
@@ -345,7 +344,7 @@ full_command = ' '.join(command)
 print(f"Executing: {full_command}")
 
 # Start the subprocess and redirect the standard output and error to a pipe.
-proc = subprocess.Popen(full_command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1)
+proc = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
 # Start a thread to asynchronously read the process's output and put it in the queue.
 t = threading.Thread(target=enqueue_output, args=(proc.stdout, output_queue))
