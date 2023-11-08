@@ -41,7 +41,9 @@ Then install [Will's SurfTimer Metamod Plugin](https://github.com/ws-cs2/cs2-sur
 
 Now copy the Lua Vscript code from the 'lua' folder in this repository to `game/csgo`.
 
-Your resulting directory should look like 'game/csgo/scripts/vscripts/wst.lua' (and other wst files) &  'game/csgo/scripts/wst_zones/surf_beginner.txt' (and other zones).
+Your resulting directory should look like 
+ - `game/csgo/scripts/vscripts/wst.lua` (and other wst files)
+ - `game/csgo/scripts/wst_zones/surf_beginner.txt` (and other zones).
 
 Then in 'cfg' if you are running on listen server create (or add to) 'listenserver.cfg'. If you are running a dedicated server then create (or add to) 'server.cfg'.
 
