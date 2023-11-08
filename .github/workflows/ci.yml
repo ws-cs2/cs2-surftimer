@@ -23,7 +23,13 @@ jobs:
           - os: windows-2022
           - os: ubuntu-latest
             container: registry.gitlab.steamos.cloud/steamrt/sniper/sdk
+    env:
+      HL2SDKCS2: ${{ github.workspace }}/metamod/hl2sdk
+
     steps:
+      - name: Set HL2SDKCS2 path
+        run: echo "HL2SDKCS2=${HL2SDKCS2}" >> $GITHUB_ENV
+
       - name: Checkout repository recursively
         uses: actions/checkout@v4
         with:
