@@ -1,18 +1,23 @@
 name: CI
 
 on:
+  workflow_dispatch:
+
   push:
     branches:
       - main
-    tags:
-      - "*"
+    paths:
+      - "metamod/**"
   pull_request:
     branches:
       - main
+    paths:
+      - "metamod/**"
 
 jobs:
   build:
     name: Build WST Metamod Plugin
+    if: ${{ github.event_name == 'push' || github.event_name == 'pull_request' }}
     runs-on: ${{ matrix.os }}
     container: ${{ matrix.container }}
     strategy:
@@ -57,5 +62,24 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v3
         with:
-          name: metamod-${{ runner.os }}
+          name: ${{ format('wst-mm-{0}', contains(runner.os, 'windows') && 'win' || 'linux') }}
           path: metamod/build/package
+
+    release:
+      needs: build
+      runs-on: ubuntu-latest
+      if: ${{ github.event_name == 'workflow_dispatch' }}
+      steps:
+        - name: Download artifacts
+          uses: actions/download-artifact@v3
+          with:
+            path: artifacts/
+
+        - name: Create Release
+          uses: softprops/action-gh-release@v1
+          with:
+            files: |
+              artifacts/wst-mm-win/*
+              artifacts/wst-mm-linux/*
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
