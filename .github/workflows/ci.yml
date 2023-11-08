@@ -1,0 +1,69 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "*"
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build WST Metamod Plugin
+    runs-on: ${{ matrix.os }}
+    container: ${{ matrix.container }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2022, ubuntu-latest]
+        include:
+          - os: windows-2022
+          - os: ubuntu-latest
+            container: registry.gitlab.steamos.cloud/steamrt/sniper/sdk
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: cs2-surftimer/metamod
+
+      - name: Checkout Metamod Source
+        uses: actions/checkout@v4
+        with:
+          repository: alliedmodders/metamod-source
+          ref: master
+          path: cs2-surftimer/metamod/metamod-source
+          submodules: recursive
+
+      - name: Checkout HL2SDK
+        uses: actions/checkout@v4
+        with:
+          repository: alliedmodders/hl2sdk
+          ref: cs2
+          path: cs2-surftimer/metamod/hl2sdk
+
+      - name: Checkout AMBuild
+        uses: actions/checkout@v4
+        with:
+          repository: alliedmodders/ambuild
+          path: cs2-surftimer/metamod/ambuild
+
+      - name: Install AMBuild
+        run: |
+          cd cs2-surftimer/metamod/ambuild && python setup.py install && cd ../../..
+
+      - name: Build Metamod
+        working-directory: cs2-surftimer/metamod
+        shell: bash
+        run: |
+          mkdir build && cd build
+          python ../configure.py --enable-optimize --symbol-files --sdks cs2
+          ambuild
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: metamod-${{ runner.os }}
+          path: cs2-surftimer/metamod/build/package
