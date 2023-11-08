@@ -65,21 +65,21 @@ jobs:
           name: ${{ format('wst-mm-{0}', contains(runner.os, 'windows') && 'win' || 'linux') }}
           path: metamod/build/package
 
-    release:
-      needs: build
-      runs-on: ubuntu-latest
-      # if: ${{ github.event_name == 'workflow_dispatch' }}
-      steps:
-        - name: Download artifacts
-          uses: actions/download-artifact@v3
-          with:
-            path: artifacts/
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    # if: ${{ github.event_name == 'workflow_dispatch' }}
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: artifacts/
 
-        - name: Create Release
-          uses: softprops/action-gh-release@v1
-          with:
-            files: |
-              artifacts/wst-mm-win/*
-              artifacts/wst-mm-linux/*
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            artifacts/wst-mm-win/*
+            artifacts/wst-mm-linux/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
