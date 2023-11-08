@@ -103,8 +103,6 @@ bool WSTPlugin::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, boo
 	Message("Plugin Loaded\n");
 
 	// This cursed shit is required to register console commands, yay we have to set some rando ass global with some magical incarntation
-	// Also of course every weeb metamod fucker has left 0 comments about this
-	// There goes 30 mins of my life, fuck I hate C++
 	// see hl2sdk/tier1/convar.cpp
 	GET_V_IFACE_CURRENT(GetEngineFactory, g_pCVar, ICvar, CVAR_INTERFACE_VERSION);
 	GET_V_IFACE_ANY(GetFileSystemFactory, g_pFullFileSystem, IFileSystem, FILESYSTEM_INTERFACE_VERSION);
