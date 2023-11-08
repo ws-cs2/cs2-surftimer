@@ -16,6 +16,7 @@ A experimental simple surf timer using the depricated Lua [VScript API](https://
 
  - FutureGN Surf - `139.99.145.57:27019`
  - [KZG | CS2 Surf](https://join.kzg.gg/cs2-surf) - `103.212.224.45:27085`
+ - sk8 | EZ SURF - TIMER & RANKS - `101.100.143.138:27085`
 
 ## Discord
 
