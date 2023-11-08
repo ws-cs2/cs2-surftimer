@@ -3,21 +3,21 @@ name: CI
 on:
   workflow_dispatch:
 
-  push:
-    branches:
-      - main
-    paths:
-      - "metamod/**"
-  pull_request:
-    branches:
-      - main
-    paths:
-      - "metamod/**"
+  # push:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - "metamod/**"
+  # pull_request:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - "metamod/**"
 
 jobs:
   build:
     name: Build WST Metamod Plugin
-    if: ${{ github.event_name == 'push' || github.event_name == 'pull_request' }}
+    # if: ${{ github.event_name == 'push' || github.event_name == 'pull_request' }}
     runs-on: ${{ matrix.os }}
     container: ${{ matrix.container }}
     strategy:
@@ -68,7 +68,7 @@ jobs:
     release:
       needs: build
       runs-on: ubuntu-latest
-      if: ${{ github.event_name == 'workflow_dispatch' }}
+      # if: ${{ github.event_name == 'workflow_dispatch' }}
       steps:
         - name: Download artifacts
           uses: actions/download-artifact@v3
