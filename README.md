@@ -37,7 +37,7 @@ Need help, interested in running a dedicated server or want to make some improvm
 
 First will first need to [install Metamod](https://www.sourcemm.net/downloads.php?branch=dev). 
 
-Then install [Will's SurfTimer Metamod Plugin]() Metamod plugin,  [Lua Unlocker](https://github.com/Source2ZE/LuaUnlocker) and optionally [Movement Unlocker](https://github.com/Source2ZE/MovementUnlocker).
+Then install [Will's SurfTimer Metamod Plugin](https://github.com/ws-cs2/cs2-surftimer/releases/),  [Lua Unlocker](https://github.com/Source2ZE/LuaUnlocker) and optionally [Movement Unlocker](https://github.com/Source2ZE/MovementUnlocker).
 
 Now copy the Lua Vscript code from the 'lua' folder in this repository to `game/csgo`.
 
