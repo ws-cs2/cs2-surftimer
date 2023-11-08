@@ -1,6 +1,6 @@
 # Will's CS2 SurfTimer
 
-A experimental simple surf timer using the depricated Lua [VScript API](https://cs2.poggu.me/dumped-data/vscript-list).
+A experimental simple surf timer using the depricated Lua [VScript API](https://cs2.poggu.me/dumped-data/vscript-list) & Metamod.
 
 ![image](https://github.com/ws-cs2/cs2-surftimer/assets/149922947/f97e68af-94d2-4a7b-ad80-e24492a8191c)
 
@@ -35,9 +35,13 @@ Need help, interested in running a dedicated server or want to make some improvm
 
 ## Installation
 
-First will first need to [install Metamod](https://www.sourcemm.net/downloads.php?branch=dev). Then install the [Lua Unlocker](https://github.com/Source2ZE/LuaUnlocker) and optionally [Movement Unlocker](https://github.com/Source2ZE/MovementUnlocker).
+First will first need to [install Metamod](https://www.sourcemm.net/downloads.php?branch=dev). 
 
-Copy the `scripts` folder here to your `game/csgo` folder.
+Then install [Will's SurfTimer Metamod Plugin]() Metamod plugin,  [Lua Unlocker](https://github.com/Source2ZE/LuaUnlocker) and optionally [Movement Unlocker](https://github.com/Source2ZE/MovementUnlocker).
+
+Now copy the Lua Vscript code from the 'lua' folder in this repository to `game/csgo`.
+
+Your resulting directory should look like 'game/csgo/scripts/vscripts/wst.lua' (and other wst files) &  'game/csgo/scripts/wst_zones/surf_beginner.txt' (and other zones).
 
 Then in 'cfg' if you are running on listen server create (or add to) 'listenserver.cfg'. If you are running a dedicated server then create (or add to) 'server.cfg'.
 
@@ -47,32 +51,11 @@ script_reload_code wst
 sv_cheats 0
 ```
 
-To persist times in a dedicated server, you must run cs2 via the python launcher script provided (See below to learn why)
-
-The plugin should work without using the launcher, however your times will not save.
-
-To use the launcher
-
-```
-python scripts/wst_launcher.py <all of your normal parameters you would pass to cs2.exe>
-```
-```
-Example:
-
-C:/cs2/game/bin/win64/cs2.exe -dedicated +map de_dust2
-
-becomes
-
-python scripts/wst_launcher.py -dedicated +map de_dust2
-```
-
 ## Saving & Loading Times
 
 The Lua VScript API is a sandbox and provides no way (that I know of) to save data to disk, call web API's or use databases.
 
-Therefore we have made a python 'launcher' script that can be used to run CS2 dedicated servers. This script reads output from the server console to accept commands passed from the Lua plugin. For now it just stores times in Valve's VDF KeyValues format as files.
-
-Lua plugins can then read files in this KeyValue format.
+Therefore we have made a Metamod plugin which handles saving times to disk.
 
 Map times are saved in `scripts/wst_records/<map_name>.txt`
 
