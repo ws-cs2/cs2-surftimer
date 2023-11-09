@@ -17,7 +17,6 @@ A experimental simple surf timer using the depricated Lua [VScript API](https://
  - FutureGN Surf - `139.99.145.57:27019`
  - [KZG | CS2 Surf](https://join.kzg.gg/cs2-surf) - `103.212.224.45:27085`
  - sk8 | EZ SURF - TIMER & RANKS - `101.100.143.138:27085`
- - 24/7 Surf Utopia - Skinchanger Knifechanger - `128.140.106.242:27021`
  - Surf UTOPIA [ded-community.de] - `128.140.106.242:27021`
  - Surf UTOPIA (US) [ded-community.de] - `5.161.92.40:27015`
  - Surf UTOPIA (US#2) [ded-community.de] - `5.161.216.93:27015`
