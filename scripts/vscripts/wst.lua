@@ -214,6 +214,13 @@ function LoadZones(zone_file_table)
     end
 end
 
+Convars:RegisterCommand("wst_getpos", function()
+    local player = Convars:GetCommandClient()
+    local location = player:GetAbsOrigin()
+    SendTextToClient(player, location.x .. ", " .. location.y .. ", " .. location.z)
+end, nil, 0)
+
+
 -- local zones = LoadKeyValues('scripts/wst_zones/surf_beginner_debug.txt')
 local zones = LoadKeyValues('scripts/wst_zones/' .. CURRENT_MAP .. '.txt')
 if zones == nil then
@@ -300,11 +307,6 @@ Convars:RegisterCommand("wst_r", function()
     TeleportToStartZone(player)
 end, nil, 0)
 
-Convars:RegisterCommand("wst_getpos", function()
-    local player = Convars:GetCommandClient()
-    local location = player:GetAbsOrigin()
-    SendTextToClient(player, location.x .. ", " .. location.y .. ", " .. location.z)
-end, nil, 0)
 
 
 function PlayerTick(player)
