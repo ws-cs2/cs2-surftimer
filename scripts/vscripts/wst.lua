@@ -311,10 +311,33 @@ Convars:RegisterCommand("wst_r", function()
 end, nil, 0)
 
 function ConvertTSpawnsToCTSpawns()
+    print("[WST] ConvertTSpawnsToCTSpawns.start")
+    -- Convert T spawns to CT spawns
     for i, entity in pairs(Entities:FindAllByClassname("info_player_terrorist")) do
-        SpawnEntityFromTableSynchronous("info_player_counterterrorist", { origin = entity:GetOrigin() } )
+        SpawnEntityFromTableSynchronous("info_player_counterterrorist", { origin = entity:GetOrigin() })
         entity:Kill()
     end
+
+    -- Get the current number of CT spawns
+    local ctSpawns = Entities:FindAllByClassname("info_player_counterterrorist")
+    local numberOfCTSpawns = #ctSpawns
+    -- Check if there are less than 64 CT spawns
+    if numberOfCTSpawns < 64 then
+        -- Get the origin of the first CT spawn
+        local firstCTSpawnOrigin
+        if ctSpawns[1] then
+            firstCTSpawnOrigin = ctSpawns[1]:GetOrigin()
+        else
+            print("Error: No CT spawns found.")
+            return
+        end
+
+        -- Add additional CT spawns at the origin of the first CT spawn until there are 64
+        for i = numberOfCTSpawns + 1, 64 do
+            SpawnEntityFromTableSynchronous("info_player_counterterrorist", { origin = firstCTSpawnOrigin })
+        end
+    end
+    print("[WST] ConvertTSpawnsToCTSpawns.end")
 end
 
 function PlayerTick(player)
@@ -358,6 +381,7 @@ function Tick()
 end
 
 function Activate()
+    print("[WST] Activate.start")
     SurfCVars()
 
     if WORLDENT ~= nil then
@@ -366,15 +390,19 @@ function Activate()
 
 
     WORLDENT = Entities:FindByClassname(nil, "worldent")
+    if WORLDENT == nil then
+        print("No world ent")
+        return
+    end
     WORLDENT:SetContextThink(nil, Tick, 0)
 
     ConvertTSpawnsToCTSpawns()
-
     CreateStartZone(START_ZONE_V1, START_ZONE_V2)
     CreateEndZone("1", END_ZONE_V1, END_ZONE_V2)
     if END_ZONE_2_V1 ~= nil and END_ZONE_2_V2 ~= nil then
         CreateEndZone("2", END_ZONE_2_V1, END_ZONE_2_V2)
     end
+    print("[WST] Activate.end")
 end
 
 ListenToGameEvent("player_connect", function(event)
@@ -391,9 +419,11 @@ ListenToGameEvent("player_spawn", function(event)
     local player_connect = PLAYER_CONNECT_TABLE[event.userid]
     local user = EHandleToHScript(event.userid_pawn)
     user.user_id = event.userid
-    user.steam_id = player_connect.networkid
-    user.name = player_connect.name
-    user.ip_address = player_connect.address
+    if player_connect ~= nil then
+        user.steam_id = player_connect.networkid
+        user.name = player_connect.name
+        user.ip_address = player_connect.address
+    end
 end, nil)
 
 function ServerMessage()
