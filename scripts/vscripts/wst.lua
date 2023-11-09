@@ -23,6 +23,9 @@ print("Map: " .. CURRENT_MAP)
 -- surf_beginner
 -- host_workshop_map 3070321829
 
+-- surf_utopia_njv
+-- host_workshop_map 3073875025
+
 
 local DRAW_ZONES = false
 local START_ZONE_SPEED_CAP_XY = 400
@@ -307,7 +310,12 @@ Convars:RegisterCommand("wst_r", function()
     TeleportToStartZone(player)
 end, nil, 0)
 
-
+function ConvertTSpawnsToCTSpawns()
+    for i, entity in pairs(Entities:FindAllByClassname("info_player_terrorist")) do
+        SpawnEntityFromTableSynchronous("info_player_counterterrorist", { origin = entity:GetOrigin() } )
+        entity:Kill()
+    end
+end
 
 function PlayerTick(player)
     local velocity = player:GetVelocity()
@@ -359,6 +367,8 @@ function Activate()
 
     WORLDENT = Entities:FindByClassname(nil, "worldent")
     WORLDENT:SetContextThink(nil, Tick, 0)
+
+    ConvertTSpawnsToCTSpawns()
 
     CreateStartZone(START_ZONE_V1, START_ZONE_V2)
     CreateEndZone("1", END_ZONE_V1, END_ZONE_V2)
