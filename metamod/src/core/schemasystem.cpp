@@ -21,7 +21,7 @@ CSchemaSystemTypeScope* CSchemaSystem::GetServerTypeScope()
 #if WIN32
     static CSchemaSystemTypeScope* pServerTypeScope = FindTypeScopeForModule("server.dll");
 #else
-    static CSchemaSystemTypeScope* pServerTypeScope = FindTypeScopeForModule("libserver.so"));
+    static CSchemaSystemTypeScope* pServerTypeScope = FindTypeScopeForModule("libserver.so");
 #endif
 
     return pServerTypeScope;

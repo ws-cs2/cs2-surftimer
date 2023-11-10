@@ -95,7 +95,7 @@ CON_COMMAND_F(wst_mm_save_record, "Save a record to disk", FCVAR_GAMEDLL | FCVAR
 		// Update the record
 		playerData->SetFloat("time", time);
 		playerData->SetString("name", player_name);
-		if (kv->SaveToFile(g_pFullFileSystem, filePath, "MOD"))
+		if (kv->SaveToFile(Framework::FileSystem(), filePath, "MOD"))
 		{
 			Message("Record saved successfully for %s on %s [%f]\n", player_name, map_name, time);
 		}
