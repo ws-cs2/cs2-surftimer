@@ -72,7 +72,7 @@ CON_COMMAND_F(wst_mm_save_record, "Save a record to disk", FCVAR_GAMEDLL | FCVAR
 	Q_snprintf(filePath, sizeof(filePath), "scripts/wst_records/%s.txt", map_name);
 
 	KeyValues *data;
-	if (kv->LoadFromFile(g_pFullFileSystem, filePath, "MOD"))
+	if (kv->LoadFromFile(Framework::FileSystem(), filePath, "MOD"))
 	{
 		// Find the data subkey
 		data = kv->FindKey("data", true);
