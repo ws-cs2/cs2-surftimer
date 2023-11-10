@@ -300,7 +300,7 @@ Convars:RegisterCommand("wst_top", function()
     for i, p in ipairs(topPlayers)
     do
         local position, total_players = getPlayerPosition(p.steam_id)
-        SendTextToClient(player, position .. "/" .. total_players .. " " .. p.name .. " " .. p.time)
+        SendTextToClient(player, position .. "/" .. total_players .. " " .. p.name .. " " .. FormatTime(p.time))
     end
 end, nil, 0)
 
@@ -423,6 +423,30 @@ ListenToGameEvent("player_spawn", function(event)
         user.steam_id = player_connect.networkid
         user.name = player_connect.name
         user.ip_address = player_connect.address
+    end
+end, nil)
+
+ListenToGameEvent("player_chat", function(event)
+    -- This is off by 1 from the userid we get in lua
+    -- IE first player.user_id to join is 1 in lua but 0 from C++
+    -- Unsure if s2ze just sending it wrong or not
+    local userid = event.userid - 1
+
+    local chatPlayer = nil
+    local players = Entities:FindAllByClassname("player")
+    for i, player in ipairs(players)
+    do
+        if player.user_id == userid then
+            chatPlayer = players[i]
+            break
+        end
+    end
+    if (chatPlayer == nil) then
+        return
+    end
+    if event.text == "!r" or event.text == "/r" then        
+        TeleportToStartZone(chatPlayer)
+        return
     end
 end, nil)
 

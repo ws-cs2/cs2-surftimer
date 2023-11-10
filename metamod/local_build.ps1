@@ -11,6 +11,7 @@ $packageDir = "$buildDir\package\addons\*"
 
 # Define the target directory for the plugin
 $targetDir = "C:\cs2\game\csgo\addons"
+$command = "C:\cs2\game\bin\win64\cs2.exe"
 
 
 # Check if the build directory exists, and delete it if it does
@@ -33,5 +34,8 @@ if (Test-Path $packageDir) {
     Copy-Item -Path $packageDir -Destination $targetDir -Recurse -Force
 }
 
-# Return to the root directory
-Set-Location -Path $currentDir
+# Spawn a process running $command with args  -dedicated +map de_dust2
+Start-Process -FilePath $command -ArgumentList "-dedicated +map de_dust2"
+
+
+

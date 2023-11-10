@@ -15,15 +15,33 @@ for sdk_name in MMSPlugin.sdks:
 
     binary = MMSPlugin.HL2Library(builder, cxx, MMSPlugin.plugin_name, sdk)
 
+    binary.compiler.cxxincludes += [
+      os.path.join(builder.sourcePath, 'vendor', 'funchook', 'include'),
+    ]
+
+    if binary.compiler.target.platform == 'linux':
+      binary.compiler.postlink += [
+        os.path.join(builder.sourcePath, 'vendor', 'funchook', 'lib', 'libfunchook.a'),
+        os.path.join(builder.sourcePath, 'vendor', 'funchook', 'lib', 'libdistorm.a'),
+      ]
+    elif binary.compiler.target.platform == 'windows':
+      binary.compiler.postlink += [
+        os.path.join('psapi.lib'),
+        os.path.join(builder.sourcePath, 'vendor', 'funchook', 'lib', 'funchook.lib'),
+        os.path.join(builder.sourcePath, 'vendor', 'funchook', 'lib', 'distorm.lib'),
+      ]
+
     binary.sources += [
-      './src/wst.cpp',
+      'src/wst.cpp',
+      'src/core/schemasystem.cpp'
     ]
 
     if sdk_name in ['dota', 'cs2']:
       binary.sources += [
-      os.path.join(sdk.path, 'tier1', 'convar.cpp'),
-      os.path.join(sdk.path, 'public', 'tier0', 'memoverride.cpp'),
-    ]
+        os.path.join(sdk.path, 'public', 'tier0', 'memoverride.cpp'),
+        os.path.join(sdk.path, 'tier1', 'convar.cpp')
+      ]
+
 
     if cxx.target.arch == 'x86':
       binary.sources += ['sourcehook/sourcehook_hookmangen.cpp']

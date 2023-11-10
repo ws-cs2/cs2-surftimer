@@ -1,4 +1,18 @@
+// Hack to get my IDE to work remove this before compiling
+//#define COMPILER_MSVC
+
 #include "wst.h"
+
+#include <iserver.h>
+#include <dbg.h>
+#include <strtools.h>
+#include <funchook.h>
+
+#include "core/framework.h"
+#include "core/module.h"
+#include "core/virtual.h"
+#include "core/cbaseentity.h"
+
 
 void Message(const char *msg, ...)
 {
@@ -96,25 +110,70 @@ CON_COMMAND_F(wst_mm_save_record, "Save a record to disk", FCVAR_GAMEDLL | FCVAR
 	}
 }
 
+typedef void (*HostSay)(CBaseEntity*, CCommand&, bool, int, const char*);
+static HostSay m_pHostSay = nullptr;
+
+void DetourHostSay(SC_CBaseEntity* pController, CCommand& args, bool teamonly, int unk1,
+const char* unk2)
+{
+    IGameEvent *pEvent = Framework::GameEventManager()->CreateEvent("player_chat", true);
+
+    if (pEvent)
+    {
+        pEvent->SetBool("teamonly", teamonly);
+        pEvent->SetInt("userid", pController->m_pEntity->m_EHandle.GetEntryIndex());
+        pEvent->SetString("text", args[1]);
+
+        Framework::GameEventManager()->FireEvent(pEvent, true);
+    }
+
+    // if the text starts with ! or / then we don't call m_pHostSay
+    // check args length to prevent crash
+    if (*args[1] == '/' || *args[1] == '!') {
+        return;
+    }
+
+    m_pHostSay(pController, args, teamonly, unk1, unk2);
+}
+
 bool WSTPlugin::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, bool late)
 {
 	PLUGIN_SAVEVARS();
 
 	Message("Plugin Loaded\n");
 
-	// This cursed shit is required to register console commands, yay we have to set some rando ass global with some magical incarntation
-	// see hl2sdk/tier1/convar.cpp
-	GET_V_IFACE_CURRENT(GetEngineFactory, g_pCVar, ICvar, CVAR_INTERFACE_VERSION);
-	GET_V_IFACE_ANY(GetFileSystemFactory, g_pFullFileSystem, IFileSystem, FILESYSTEM_INTERFACE_VERSION);
+    GET_V_IFACE_CURRENT(GetEngineFactory, Framework::CVar(), ICvar, CVAR_INTERFACE_VERSION);
+    GET_V_IFACE_ANY(GetFileSystemFactory, Framework::FileSystem(), IFileSystem, FILESYSTEM_INTERFACE_VERSION);
+    GET_V_IFACE_ANY(GetEngineFactory, Framework::NetworkServerService(), INetworkServerService, NETWORKSERVERSERVICE_INTERFACE_VERSION);
+    GET_V_IFACE_ANY(GetServerFactory, Framework::Source2Server(), ISource2Server, SOURCE2SERVER_INTERFACE_VERSION);
+    GET_V_IFACE_CURRENT(GetEngineFactory, Framework::EngineServer(), IVEngineServer2, INTERFACEVERSION_VENGINESERVER);
+
+    Framework::GameEventManager() = (IGameEventManager2 *)(CALL_VIRTUAL(uintptr_t, 91, Framework::Source2Server()) - 8);
+    Framework::SchemaSystem() = (CSchemaSystem*)Framework::SchemaSystemModule().FindInterface(SCHEMASYSTEM_INTERFACE_VERSION);
+
+     // https://github.com/Source2ZE/CS2Fixes/blob/main/gamedata/cs2fixes.games.txt
+     // For now only detour HostSay on windows, for linux tell people to use CounterStrikeSharp
+#ifdef WIN32
+    m_pHostSay = (HostSay)Framework::Server().FindSignature(R"(\x44\x89\x4C\x24\x2A\x44\x88\x44\x24\x2A\x55\x53\x56\x57\x41\x54\x41\x55)");
+    auto m_hook = funchook_create();
+    funchook_prepare(m_hook, (void**)&m_pHostSay, (void*)&DetourHostSay);
+    funchook_install(m_hook, 0);
+#else
+    // m_pHostSay = (HostSay)Framework::Server().FindSignature(R"(\x55\x48\x89\xE5\x41\x57\x49\x89\xFF\x41\x56\x41\x55\x41\x54\x4D\x89\xC4)");
+#endif
 
 	// Call register convars
+    g_pCVar = Framework::CVar();   // set magic global for metamod
 	ConVar_Register(FCVAR_GAMEDLL | FCVAR_HIDDEN);
 
 	return true;
 }
 
+
 bool WSTPlugin::Unload(char *error, size_t maxlen)
 {
+	ConVar_Unregister();
+
 	return true;
 }
 
@@ -128,8 +187,10 @@ bool WSTPlugin::Unpause(char *error, size_t maxlen)
 	return true;
 }
 
+
 void WSTPlugin::AllPluginsLoaded()
 {
+
 }
 
 const char *WSTPlugin::GetLicense()
