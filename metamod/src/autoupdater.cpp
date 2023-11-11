@@ -168,31 +168,28 @@ void AutoUpdater::handleHTTPResponse(HTTPRequestCompleted_t *response, bool fail
         return;
     }
 
-    try {
-        std::string responseString(reinterpret_cast<const char*>(responseData.data()), responseSize);
 
-        // Check if responseString is empty
-        if (responseString.empty()) {
-            Message("[Autoupdate] Response string is empty.\n");
-            return;
-        }
+    std::string responseString(reinterpret_cast<const char*>(responseData.data()), responseSize);
 
-        std::istringstream iss(responseString);
-        std::string line;
-        std::vector<std::string> lines;
-        while (std::getline(iss, line)) {
-            lines.push_back(line);
-        }
-
-        for (auto& line : lines) {
-            std::string url = "https://raw.githubusercontent.com/ws-cs2/cs2-surftimer/main/" + line;
-            std::filesystem::path path = this->gameDirPath / line; // Correctly combine paths
-            ScriptOrZoneFile* luaFile = new ScriptOrZoneFile(path, url.c_str());
-            luaFile->updateFile();
-        }
-
-    } catch (const std::exception& e) {
-        Message("[Autoupdate] Failed to get");
+    // Check if responseString is empty
+    if (responseString.empty()) {
+        Message("[Autoupdate] Response string is empty.\n");
+        return;
     }
+
+    std::istringstream iss(responseString);
+    std::string line;
+    std::vector<std::string> lines;
+    while (std::getline(iss, line)) {
+        lines.push_back(line);
+    }
+
+    for (auto& line : lines) {
+        std::string url = "https://raw.githubusercontent.com/ws-cs2/cs2-surftimer/main/" + line;
+        std::filesystem::path path = this->gameDirPath / line; // Correctly combine paths
+        ScriptOrZoneFile* luaFile = new ScriptOrZoneFile(path, url.c_str());
+        luaFile->updateFile();
+    }
+
     Framework::SteamHTTP()->ReleaseHTTPRequest(response->m_hRequest);
 }

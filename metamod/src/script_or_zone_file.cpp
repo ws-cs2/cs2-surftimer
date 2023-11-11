@@ -75,25 +75,22 @@ void ScriptOrZoneFile::handleHTTPResponse(HTTPRequestCompleted_t *response, bool
         Message("[ScriptOrZoneFile] Failed to get response body data.\n");
         return;
     }
+    
+    std::string responseString(reinterpret_cast<const char*>(responseData.data()), responseSize);
 
-    try {
-        std::string responseString(reinterpret_cast<const char*>(responseData.data()), responseSize);
-
-        // Check if responseString is empty
-        if (responseString.empty()) {
-            Message("[ScriptOrZoneFile] Response string is empty.\n");
-            return;
-        }
-
-        std::ofstream file;
-        file.open(this->path);
-        file.write(reinterpret_cast<const char *>(responseData.data()), responseSize);
-        file.close();
-
-        Framework::SteamHTTP()->ReleaseHTTPRequest(response->m_hRequest);
-    } catch (const std::exception& e) {
-        Message("[ScriptOrZoneFile] Failed to write to file -> %s\n", this->path.string().data());
+    // Check if responseString is empty
+    if (responseString.empty()) {
+        Message("[ScriptOrZoneFile] Response string is empty.\n");
+        return;
     }
+
+    std::ofstream file;
+    file.open(this->path);
+    file.write(reinterpret_cast<const char *>(responseData.data()), responseSize);
+    file.close();
+
+    Framework::SteamHTTP()->ReleaseHTTPRequest(response->m_hRequest);
+
     Framework::SteamHTTP()->ReleaseHTTPRequest(response->m_hRequest);
 
 //
