@@ -13,9 +13,11 @@ include_directories(
         hl2sdk/public/tier1
         hl2sdk/public/entity2
         hl2sdk/public/game/server
+        hl2sdk/lib/public/win64
         metamod-source/core
         metamod-source/core/sourcehook
         vendor/funchook/include
+
 )
 
 add_executable(wst
@@ -27,6 +29,13 @@ add_executable(wst
         src/core/schemasystem.cpp
         src/core/schemasystem.h
         src/core/cbaseentity.h
+        src/core/whereami.cpp
+        src/core/whereami.h
+        src/autoupdater.cpp
+        src/autoupdater.h
+        src/lua_file.cpp
+        src/lua_file.h
+        src/core/common.h
 )
 
 # Dummy target to integrate custom build script

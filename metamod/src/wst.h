@@ -3,6 +3,7 @@
 #include <ISmmPlugin.h>
 #include <iserver.h>
 #include "igameevents.h"
+#include "steam/isteamhttp.h"
 
 
 class WSTPlugin : public ISmmPlugin, public IMetamodListener
@@ -24,6 +25,9 @@ public:
 	const char *GetVersion();
 	const char *GetDate();
 	const char *GetLogTag();
+
+    void Hook_GameServerSteamAPIActivated();
+    void Hook_GameServerSteamAPIDeactivated();
 };
 
 extern WSTPlugin g_WSTPlugin;

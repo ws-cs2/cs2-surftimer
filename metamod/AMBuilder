@@ -15,6 +15,14 @@ for sdk_name in MMSPlugin.sdks:
 
     binary = MMSPlugin.HL2Library(builder, cxx, MMSPlugin.plugin_name, sdk)
 
+    if binary.compiler.family == 'gcc' or binary.compiler.family == 'clang':
+      binary.compiler.cxxflags += ['--std=c++17']
+    elif binary.compiler.family == 'msvc':
+      binary.compiler.cxxflags += ['/std:c++20']
+
+    if binary.compiler.family == 'clang':
+      binary.compiler.cxxflags += ['-Wno-register']
+
     binary.compiler.cxxincludes += [
       os.path.join(builder.sourcePath, 'vendor', 'funchook', 'include'),
     ]
@@ -29,11 +37,15 @@ for sdk_name in MMSPlugin.sdks:
         os.path.join('psapi.lib'),
         os.path.join(builder.sourcePath, 'vendor', 'funchook', 'lib', 'funchook.lib'),
         os.path.join(builder.sourcePath, 'vendor', 'funchook', 'lib', 'distorm.lib'),
+        os.path.join(builder.sourcePath, 'hl2sdk', 'lib', 'public', 'win64', 'steam_api64.lib')
       ]
 
     binary.sources += [
       'src/wst.cpp',
-      'src/core/schemasystem.cpp'
+      'src/lua_file.cpp',
+      'src/autoupdater.cpp',
+      'src/core/schemasystem.cpp',
+      'src/core/whereami.cpp',
     ]
 
     if sdk_name in ['dota', 'cs2']:

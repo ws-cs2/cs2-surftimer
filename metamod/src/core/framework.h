@@ -44,9 +44,14 @@ public:
     }
 
     // ServerCModule
-    static CModule Server() {
+    static CModule ServerModule() {
         static CModule wst_ServerCModule(GAMEBIN, "server");
         return wst_ServerCModule;
+    }
+
+    static ISteamHTTP*& SteamHTTP() {
+        static ISteamHTTP* wst_SteamHTTP = nullptr;
+        return wst_SteamHTTP;
     }
 
     static CModule SchemaSystemModule() {
