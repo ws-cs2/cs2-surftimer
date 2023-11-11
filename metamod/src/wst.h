@@ -28,6 +28,8 @@ public:
 
     void Hook_GameServerSteamAPIActivated();
     void Hook_GameServerSteamAPIDeactivated();
+
+    WSTConfig LoadOrCreateConfig();
 };
 
 extern WSTPlugin g_WSTPlugin;

@@ -21,8 +21,6 @@
 namespace fs = std::filesystem;
 
 
-
-
 void Message(const char *msg, ...) {
     va_list args;
     va_start(args, msg);
@@ -49,14 +47,16 @@ void DEBUG_Message(const char *msg, ...) {
 AutoUpdater g_AutoUpdater{};
 WSTPlugin g_WSTPlugin;
 PLUGIN_EXPOSE(WSTPlugin, g_WSTPlugin);
+
 SH_DECL_HOOK0_void(IServerGameDLL, GameServerSteamAPIActivated, SH_NOATTRIB, 0);
+
 SH_DECL_HOOK0_void(IServerGameDLL, GameServerSteamAPIDeactivated, SH_NOATTRIB, 0);
 
 CON_COMMAND_F(wst_mm_clean, "Removes scripts", FCVAR_GAMEDLL | FCVAR_HIDDEN) {
     // wst_mm_clean
     // wst_mm_clean <scripts>
 
-    const char* arg = args.Arg(1);
+    const char *arg = args.Arg(1);
     if (strcmp(arg, "scripts") == 0) {
         Message("Removing scripts\n");
         g_AutoUpdater.cleanScripts();
@@ -71,7 +71,7 @@ CON_COMMAND_F(wst_mm_update, "Updates the lua code and/or zones files from githu
     // wst_mm_update
     // wst_mm_update <all|scripts|zones>
 
-    const char* arg = args.Arg(1);
+    const char *arg = args.Arg(1);
 
     if (arg == nullptr || strcmp(arg, "all") == 0) {
         Message("Updating all files\n");
@@ -180,6 +180,7 @@ void DetourHostSay(SC_CBaseEntity *pController, CCommand &args, bool teamonly, i
 }
 
 CSteamGameServerAPIContext g_steamAPI;
+
 void WSTPlugin::Hook_GameServerSteamAPIActivated() {
     Message("Steam API Activated\n");
 
@@ -191,13 +192,50 @@ void WSTPlugin::Hook_GameServerSteamAPIDeactivated() {
     Message("Steam API Deactivated\n");
 }
 
+struct WSTConfig {
+    bool detourHostSay;
+};
+
+WSTConfig WSTPlugin::LoadOrCreateConfig() {
+    // Load or initialize our KeyValuesW
+    KeyValues *kv = new KeyValues("Config");
+    KeyValues::AutoDelete autoDelete(kv); // Ensure automatic deletion on scope exit
+
+    char filePath[512];
+    Q_snprintf(filePath, sizeof(filePath), "scripts/wst_config/%s.txt", "config");
+
+
+    KeyValues *data;
+    if (kv->LoadFromFile(Framework::FileSystem(), filePath, "MOD")) {
+        // Find the data subkey
+        data = kv->FindKey("DetourHostSay", true);
+    } else {
+        // Initialize the KeyValues structure if the file doesn't exist
+        kv->SetBool("DetourHostSay", false);
+    }
+
+
+    if (kv->SaveToFile(Framework::FileSystem(), filePath, "MOD")) {
+        Message("Config saved successfully\n");
+    } else {
+        Message("Failed to save config\n");
+    }
+
+    bool detourHostSay = data->GetBool("DetourHostSay", false);
+
+    WSTConfig config{};
+    config.detourHostSay = detourHostSay;
+    return config;
+}
+
 bool WSTPlugin::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, bool late) {
     PLUGIN_SAVEVARS();
 
     Message("Plugin Loaded\n");
+    g_AutoUpdater.ensureDirectoriesExist();
 
-//    std::filesystem::path pluginDir = getPluginDir2();
-//    Message("Plugin dir: %s\n", pluginDir.c_str());
+    WSTConfig config = LoadOrCreateConfig();
+
 
     GET_V_IFACE_CURRENT(GetEngineFactory, Framework::CVar(), ICvar, CVAR_INTERFACE_VERSION);
     GET_V_IFACE_ANY(GetFileSystemFactory, Framework::FileSystem(), IFileSystem, FILESYSTEM_INTERFACE_VERSION);
@@ -214,21 +252,26 @@ bool WSTPlugin::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, boo
     SH_ADD_HOOK_MEMFUNC(IServerGameDLL, GameServerSteamAPIDeactivated, Framework::Source2Server(), this,
                         &WSTPlugin::Hook_GameServerSteamAPIDeactivated, false);
 
-    // https://github.com/Source2ZE/CS2Fixes/blob/main/gamedata/cs2fixes.games.txt
-    // For now only detour HostSay on windows, for linux tell people to use CounterStrikeSharp
-#ifdef WIN32
-    // None of this code will work with CounterStrikeSharp
-    Framework::SchemaSystem() = (CSchemaSystem *) Framework::SchemaSystemModule().FindInterface(
-            SCHEMASYSTEM_INTERFACE_VERSION);
-    m_pHostSay = (HostSay) Framework::ServerModule().FindSignature(
-            R"(\x44\x89\x4C\x24\x2A\x44\x88\x44\x24\x2A\x55\x53\x56\x57\x41\x54\x41\x55)");
-    auto m_hook = funchook_create();
-    funchook_prepare(m_hook, (void **) &m_pHostSay, (void *) &DetourHostSay);
-    funchook_install(m_hook, 0);
-#else
-    // m_pHostSay = (HostSay)Framework::Server().FindSignature(R"(\x55\x48\x89\xE5\x41\x57\x49\x89\xFF\x41\x56\x41\x55\x41\x54\x4D\x89\xC4)");
-#endif
 
+    if (config.detourHostSay) {
+        Message("Detouring HostSay\n");
+        Message("If you are using MetaMod plugins such as CounterStrikeSharp/CS2Fixes, there is a good chance this will break them\n");
+
+        // https://github.com/Source2ZE/CS2Fixes/blob/main/gamedata/cs2fixes.games.txt
+        // For now only detour HostSay on windows, for linux tell people to use CounterStrikeSharp
+        Framework::SchemaSystem() = (CSchemaSystem *) Framework::SchemaSystemModule().FindInterface(
+                SCHEMASYSTEM_INTERFACE_VERSION);
+#ifdef WIN32
+        // None of this code will work with CounterStrikeSharp
+        m_pHostSay = (HostSay) Framework::ServerModule().FindSignature(
+                R"(\x44\x89\x4C\x24\x2A\x44\x88\x44\x24\x2A\x55\x53\x56\x57\x41\x54\x41\x55)");
+#else
+        m_pHostSay = (HostSay)Framework::ServerModule().FindSignature(R"(\x55\x48\x89\xE5\x41\x57\x49\x89\xFF\x41\x56\x41\x55\x41\x54\x4D\x89\xC4)");
+#endif
+        auto m_hook = funchook_create();
+        funchook_prepare(m_hook, (void **) &m_pHostSay, (void *) &DetourHostSay);
+        funchook_install(m_hook, 0);
+    }
     // Call register convars
     g_pCVar = Framework::CVar();   // set magic global for metamod
     ConVar_Register(FCVAR_GAMEDLL | FCVAR_HIDDEN);

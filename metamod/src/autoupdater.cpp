@@ -68,6 +68,7 @@ void AutoUpdater::ensureDirectoriesExist() const {
     createDirectoryIfNotExists(this->gameDirPath / "scripts" / "vscripts" / "wst");
     createDirectoryIfNotExists(this->gameDirPath / "scripts" / "wst_records");
     createDirectoryIfNotExists(this->gameDirPath / "scripts" / "wst_zones");
+    createDirectoryIfNotExists(this->gameDirPath / "scripts" / "wst_config");
 }
 
 void AutoUpdater::cleanScripts() const {
