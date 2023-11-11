@@ -66,19 +66,24 @@ CON_COMMAND_F(wst_mm_clean, "Removes scripts", FCVAR_GAMEDLL | FCVAR_HIDDEN) {
     Message("Usage: wst_mm_clean <scripts>\n");
 }
 
+CSteamGameServerAPIContext g_steamAPI;
 
 CON_COMMAND_F(wst_mm_update, "Updates the lua code and/or zones files from github", FCVAR_GAMEDLL | FCVAR_HIDDEN) {
     // wst_mm_update
-    // wst_mm_update <all|scripts|zones>
-
-    const char *arg = args.Arg(1);
-
-    if (arg == nullptr || strcmp(arg, "all") == 0) {
-        Message("Updating all files\n");
-        g_AutoUpdater.updateLuaScript();
-        g_AutoUpdater.updateZoneFiles();
+    // wst_mm_update <scripts|zones>
+    if (!g_steamAPI.SteamHTTP()) {
+        Message("Steam API not initialized\n");
         return;
     }
+
+    const char *arg = args.Arg(1);
+//
+//    if (arg == nullptr || strcmp(arg, "all") == 0) {
+//        Message("Updating all files\n");
+//        g_AutoUpdater.updateLuaScript();
+//        g_AutoUpdater.updateZoneFiles();
+//        return;
+//    }
 
     if (strcmp(arg, "scripts") == 0) {
         Message("Updating scripts\n");
@@ -93,7 +98,7 @@ CON_COMMAND_F(wst_mm_update, "Updates the lua code and/or zones files from githu
     }
 
     Message("Invalid argument: %s\n", arg);
-    Message("Usage: wst_mm_update <all|scripts|zones>\n");
+    Message("Usage: wst_mm_update <scripts|zones>\n");
 }
 
 // Called by wst lua plugin to save records to disk
@@ -179,7 +184,7 @@ void DetourHostSay(SC_CBaseEntity *pController, CCommand &args, bool teamonly, i
     m_pHostSay(pController, args, teamonly, unk1, unk2);
 }
 
-CSteamGameServerAPIContext g_steamAPI;
+
 
 void WSTPlugin::Hook_GameServerSteamAPIActivated() {
     Message("Steam API Activated\n");
@@ -201,17 +206,17 @@ WSTConfig WSTPlugin::LoadOrCreateConfig() {
     char filePath[512];
     Q_snprintf(filePath, sizeof(filePath), "scripts/wst_config/%s.txt", "config");
 
-
     KeyValues *data;
     if (kv->LoadFromFile(Framework::FileSystem(), filePath, "MOD")) {
         // Find the data subkey
         data = kv->FindKey("DetourHostSay", true);
     } else {
         // Initialize the KeyValues structure if the file doesn't exist
-        kv->SetBool("DetourHostSay", false);
+        kv->SetBool("DetourHostSay", true);
+        data = kv->FindKey("DetourHostSay", true);
     }
 
-    bool detourHostSay = data->GetBool("DetourHostSay", false);
+    bool detourHostSay = data->GetBool("DetourHostSay", true);
 
     if (kv->SaveToFile(Framework::FileSystem(), filePath, "MOD")) {
         Message("Config saved successfully\n");
@@ -231,8 +236,6 @@ bool WSTPlugin::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, boo
     g_AutoUpdater.ensureDirectoriesExist();
 
     GET_V_IFACE_ANY(GetFileSystemFactory, Framework::FileSystem(), IFileSystem, FILESYSTEM_INTERFACE_VERSION);
-    WSTConfig config = LoadOrCreateConfig();
-
     GET_V_IFACE_CURRENT(GetEngineFactory, Framework::CVar(), ICvar, CVAR_INTERFACE_VERSION);
     GET_V_IFACE_ANY(GetEngineFactory, Framework::NetworkServerService(), INetworkServerService,
                     NETWORKSERVERSERVICE_INTERFACE_VERSION);
@@ -247,6 +250,8 @@ bool WSTPlugin::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, boo
     SH_ADD_HOOK_MEMFUNC(IServerGameDLL, GameServerSteamAPIDeactivated, Framework::Source2Server(), this,
                         &WSTPlugin::Hook_GameServerSteamAPIDeactivated, false);
 
+
+    WSTConfig config = LoadOrCreateConfig();
 
     if (config.detourHostSay) {
         Message("Detouring HostSay\n");

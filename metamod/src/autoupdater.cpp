@@ -123,6 +123,23 @@ void AutoUpdater::sendHTTPRequest(const char* url) {
 }
 
 void AutoUpdater::handleHTTPResponse(HTTPRequestCompleted_t *response, bool failed) {
+    if (failed) {
+        Message("[Autoupdate] Failed to receive response\n");
+        Framework::SteamHTTP()->ReleaseHTTPRequest(response->m_hRequest);
+        return;
+    }
+
+    if (!response->m_bRequestSuccessful) {
+        Message("[Autoupdate] Request was not successful\n");
+        Framework::SteamHTTP()->ReleaseHTTPRequest(response->m_hRequest);
+        return;
+    }
+
+    if (response->m_eStatusCode != k_EHTTPStatusCode200OK) {
+        Message("[Autoupdate] Received response with status code %d\n", response->m_eStatusCode);
+        Framework::SteamHTTP()->ReleaseHTTPRequest(response->m_hRequest);
+        return;
+    }
     Message("[Autoupdate] Received Response\n");
 
     for (std::unique_ptr<HTTPCallback>& http_callback : this->http_callbacks)
@@ -135,27 +152,47 @@ void AutoUpdater::handleHTTPResponse(HTTPRequestCompleted_t *response, bool fail
     }
 
     uint32_t responseSize;
-    Framework::SteamHTTP()->GetHTTPResponseBodySize(response->m_hRequest, &responseSize);
+    if (!Framework::SteamHTTP()->GetHTTPResponseBodySize(response->m_hRequest, &responseSize)) {
+        Message("[Autoupdate] Failed to get response body size.\n");
+        return;
+    }
+
+    if (responseSize == 0) {
+        Message("[Autoupdate] Response data is empty.\n");
+        return;
+    }
+
     std::vector<uint8_t> responseData(responseSize);
-    Framework::SteamHTTP()->GetHTTPResponseBodyData(response->m_hRequest, responseData.data(), responseSize);
-
-    // read the response data into a string
-    std::string responseString(reinterpret_cast<const char *>(responseData.data()), responseSize);
-    // split the string by newlines
-    std::vector<std::string> lines;
-    std::string line;
-    std::istringstream iss(responseString);
-    while (std::getline(iss, line)) {
-        Message("Found line: %s\n", line.c_str());
-        lines.push_back(line);
+    if (!Framework::SteamHTTP()->GetHTTPResponseBodyData(response->m_hRequest, responseData.data(), responseSize)) {
+        Message("[Autoupdate] Failed to get response body data.\n");
+        return;
     }
 
-    // for each line create a ScriptOrZoneFile object
-    for (auto& line : lines) {
-        std::string url = "https://raw.githubusercontent.com/ws-cs2/cs2-surftimer/main/" + line;
-        std::filesystem::path path = this->gameDirPath / line; // Correctly combine paths
-        ScriptOrZoneFile* luaFile = new ScriptOrZoneFile(path, url.c_str());
-        luaFile->updateFile();
-    }
+    try {
+        std::string responseString(reinterpret_cast<const char*>(responseData.data()), responseSize);
 
+        // Check if responseString is empty
+        if (responseString.empty()) {
+            Message("[Autoupdate] Response string is empty.\n");
+            return;
+        }
+
+        std::istringstream iss(responseString);
+        std::string line;
+        std::vector<std::string> lines;
+        while (std::getline(iss, line)) {
+            lines.push_back(line);
+        }
+
+        for (auto& line : lines) {
+            std::string url = "https://raw.githubusercontent.com/ws-cs2/cs2-surftimer/main/" + line;
+            std::filesystem::path path = this->gameDirPath / line; // Correctly combine paths
+            ScriptOrZoneFile* luaFile = new ScriptOrZoneFile(path, url.c_str());
+            luaFile->updateFile();
+        }
+
+    } catch (const std::exception& e) {
+        Message("[Autoupdate] Failed to get");
+    }
+    Framework::SteamHTTP()->ReleaseHTTPRequest(response->m_hRequest);
 }
