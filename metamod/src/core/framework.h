@@ -55,7 +55,7 @@ public:
     }
 
     static CModule SchemaSystemModule() {
-#ifdef WIN32
+#ifdef _WIN32
         static CModule wst_SchemaSystemCModule(ROOTBIN, "schemasystem");
 #else
         static CModule wst_SchemaSystemCModule(ROOTBIN, "libschemasystem");

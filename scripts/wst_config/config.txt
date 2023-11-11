@@ -1,4 +1,4 @@
 "Config"
 {
-    "DetourHostSay" "false"
+	"DetourHostSay"		"1"
 }

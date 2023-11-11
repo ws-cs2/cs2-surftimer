@@ -192,9 +192,6 @@ void WSTPlugin::Hook_GameServerSteamAPIDeactivated() {
     Message("Steam API Deactivated\n");
 }
 
-struct WSTConfig {
-    bool detourHostSay;
-};
 
 WSTConfig WSTPlugin::LoadOrCreateConfig() {
     // Load or initialize our KeyValuesW
@@ -214,14 +211,13 @@ WSTConfig WSTPlugin::LoadOrCreateConfig() {
         kv->SetBool("DetourHostSay", false);
     }
 
+    bool detourHostSay = data->GetBool("DetourHostSay", false);
 
     if (kv->SaveToFile(Framework::FileSystem(), filePath, "MOD")) {
         Message("Config saved successfully\n");
     } else {
         Message("Failed to save config\n");
     }
-
-    bool detourHostSay = data->GetBool("DetourHostSay", false);
 
     WSTConfig config{};
     config.detourHostSay = detourHostSay;
@@ -234,11 +230,10 @@ bool WSTPlugin::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, boo
     Message("Plugin Loaded\n");
     g_AutoUpdater.ensureDirectoriesExist();
 
+    GET_V_IFACE_ANY(GetFileSystemFactory, Framework::FileSystem(), IFileSystem, FILESYSTEM_INTERFACE_VERSION);
     WSTConfig config = LoadOrCreateConfig();
 
-
     GET_V_IFACE_CURRENT(GetEngineFactory, Framework::CVar(), ICvar, CVAR_INTERFACE_VERSION);
-    GET_V_IFACE_ANY(GetFileSystemFactory, Framework::FileSystem(), IFileSystem, FILESYSTEM_INTERFACE_VERSION);
     GET_V_IFACE_ANY(GetEngineFactory, Framework::NetworkServerService(), INetworkServerService,
                     NETWORKSERVERSERVICE_INTERFACE_VERSION);
     GET_V_IFACE_ANY(GetServerFactory, Framework::Source2Server(), ISource2Server, SOURCE2SERVER_INTERFACE_VERSION);
@@ -261,7 +256,7 @@ bool WSTPlugin::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, boo
         // For now only detour HostSay on windows, for linux tell people to use CounterStrikeSharp
         Framework::SchemaSystem() = (CSchemaSystem *) Framework::SchemaSystemModule().FindInterface(
                 SCHEMASYSTEM_INTERFACE_VERSION);
-#ifdef WIN32
+#ifdef _WIN32
         // None of this code will work with CounterStrikeSharp
         m_pHostSay = (HostSay) Framework::ServerModule().FindSignature(
                 R"(\x44\x89\x4C\x24\x2A\x44\x88\x44\x24\x2A\x55\x53\x56\x57\x41\x54\x41\x55)");
@@ -271,6 +266,9 @@ bool WSTPlugin::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, boo
         auto m_hook = funchook_create();
         funchook_prepare(m_hook, (void **) &m_pHostSay, (void *) &DetourHostSay);
         funchook_install(m_hook, 0);
+    } else {
+        Message("Not detouring HostSay\n");
+        Message("If you want chat events to work you need to have a Metamod plugin which fires the player_chat event\n");
     }
     // Call register convars
     g_pCVar = Framework::CVar();   // set magic global for metamod

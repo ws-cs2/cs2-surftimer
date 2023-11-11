@@ -5,6 +5,9 @@
 #include "igameevents.h"
 #include "steam/isteamhttp.h"
 
+struct WSTConfig {
+    bool detourHostSay;
+};
 
 class WSTPlugin : public ISmmPlugin, public IMetamodListener
 {
