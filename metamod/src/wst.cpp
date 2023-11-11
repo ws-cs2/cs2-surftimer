@@ -326,7 +326,7 @@ const char *WSTPlugin::GetDescription() {
 }
 
 const char *WSTPlugin::GetName() {
-    return "CS2SurfTimer";
+    return "Will's CS2 Surftimer";
 }
 
 const char *WSTPlugin::GetURL() {
