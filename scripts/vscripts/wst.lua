@@ -5,12 +5,12 @@
 
 local CURRENT_VERSION = "_1.0.0"
 
-require("wst-leaderboard")
-require("wst-chat")
-require("wst-cvars")
-require("wst-debug")
-require("wst-utils")
-require("wst-hud")
+require("wst/wst-leaderboard")
+require("wst/wst-chat")
+require("wst/wst-cvars")
+require("wst/wst-debug")
+require("wst/wst-utils")
+require("wst/wst-hud")
 
 print("--------------------")
 print("Will's Surf Timer " .. CURRENT_VERSION)

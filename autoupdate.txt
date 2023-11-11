@@ -1,0 +1,7 @@
+/scripts/vscripts/wst.lua
+/scripts/vscripts/wst/wst-chat.lua
+/scripts/vscripts/wst/wst-cvars.lua
+/scripts/vscripts/wst/wst-debug.lua
+/scripts/vscripts/wst/wst-hud.lua
+/scripts/vscripts/wst/wst-leaderboard.lua
+/scripts/vscripts/wst/wst-utils.lua
