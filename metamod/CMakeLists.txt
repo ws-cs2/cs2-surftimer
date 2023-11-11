@@ -33,8 +33,8 @@ add_executable(wst
         src/core/whereami.h
         src/autoupdater.cpp
         src/autoupdater.h
-        src/lua_file.cpp
-        src/lua_file.h
+        src/script_or_zone_file.cpp
+        src/script_or_zone_file.h
         src/core/common.h
 )
 

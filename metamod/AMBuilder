@@ -42,7 +42,7 @@ for sdk_name in MMSPlugin.sdks:
 
     binary.sources += [
       'src/wst.cpp',
-      'src/lua_file.cpp',
+      'src/script_or_zone_file.cpp',
       'src/autoupdater.cpp',
       'src/core/schemasystem.cpp',
       'src/core/whereami.cpp',

@@ -13,13 +13,17 @@ public:
     ~AutoUpdater();
 
     void updateLuaScript();
+    void updateZoneFiles();
+
+    void cleanScripts() const;
+
     void ensureDirectoriesExist() const;
 
     std::filesystem::path gameDirPath;
 
 private:
     // Networking related functions (if necessary)
-    void sendHTTPRequest();
+    void sendHTTPRequest(const char* url);
     void handleHTTPResponse(HTTPRequestCompleted_t* response, bool failed);
 
     // Track HTTP request callbacks.
@@ -27,6 +31,8 @@ private:
     std::vector<std::unique_ptr<HTTPCallback>> http_callbacks;
 
     // Add any other private member variables or functions here
+
+
 };
 
 

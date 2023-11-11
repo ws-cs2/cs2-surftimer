@@ -1,16 +1,16 @@
 #include <vector>
 #include <fstream>
-#include "lua_file.h"
+#include "script_or_zone_file.h"
 #include "core/framework.h"
 #include "core/common.h"
 
-LuaFile::LuaFile(std::filesystem::path path, const char *url) {
+ScriptOrZoneFile::ScriptOrZoneFile(std::filesystem::path path, const char *url) {
     this->path = path;
     this->url = url;
 }
 
-void LuaFile::updateFile() {
-    Message("[LuaFile] Sending HTTP Request -> %s\n", this->url);
+void ScriptOrZoneFile::updateFile() {
+    Message("[ScriptOrZoneFile] Sending HTTP Request -> %s\n", this->url);
     auto req = Framework::SteamHTTP()->CreateHTTPRequest(k_EHTTPMethodGET, this->url);
 
     std::unique_ptr<HTTPCallback> http_callback = std::make_unique<HTTPCallback>();
@@ -21,16 +21,16 @@ void LuaFile::updateFile() {
 
     SteamAPICall_t call;
     if (!Framework::SteamHTTP()->SendHTTPRequest(req, &call)) {
-        Message("[LuaFile] Failed to send HTTP Request -> %s\n", this->url);
+        Message("[ScriptOrZoneFile] Failed to send HTTP Request -> %s\n", this->url);
         return;
     }
 
-    http_callback->Set(call, this, &LuaFile::handleHTTPResponse);
+    http_callback->Set(call, this, &ScriptOrZoneFile::handleHTTPResponse);
     this->http_callbacks.emplace_back(std::move(http_callback));
 }
 
-void LuaFile::handleHTTPResponse(HTTPRequestCompleted_t *response, bool failed) {
-    Message("[LuaFile] Received Response -> %s\n", this->url);
+void ScriptOrZoneFile::handleHTTPResponse(HTTPRequestCompleted_t *response, bool failed) {
+    Message("[ScriptOrZoneFile] Received Response -> %s\n", this->url);
 
     for (std::unique_ptr<HTTPCallback>& http_callback : this->http_callbacks)
     {
@@ -46,7 +46,7 @@ void LuaFile::handleHTTPResponse(HTTPRequestCompleted_t *response, bool failed) 
     std::vector<uint8_t> responseData(responseSize);
     Framework::SteamHTTP()->GetHTTPResponseBodyData(response->m_hRequest, responseData.data(), responseSize);
 
-    Message("[LuaFile] Writing to file -> %s\n", this->path.string().data());
+    Message("[ScriptOrZoneFile] Writing to file -> %s\n", this->path.string().data());
 
     std::ofstream file;
     file.open(this->path);

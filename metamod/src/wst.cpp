@@ -52,12 +52,48 @@ PLUGIN_EXPOSE(WSTPlugin, g_WSTPlugin);
 SH_DECL_HOOK0_void(IServerGameDLL, GameServerSteamAPIActivated, SH_NOATTRIB, 0);
 SH_DECL_HOOK0_void(IServerGameDLL, GameServerSteamAPIDeactivated, SH_NOATTRIB, 0);
 
+CON_COMMAND_F(wst_mm_clean, "Removes scripts", FCVAR_GAMEDLL | FCVAR_HIDDEN) {
+    // wst_mm_clean
+    // wst_mm_clean <scripts>
+
+    const char* arg = args.Arg(1);
+    if (strcmp(arg, "scripts") == 0) {
+        Message("Removing scripts\n");
+        g_AutoUpdater.cleanScripts();
+        return;
+    }
+    Message("Invalid argument: %s\n", arg);
+    Message("Usage: wst_mm_clean <scripts>\n");
+}
 
 
+CON_COMMAND_F(wst_mm_update, "Updates the lua code and/or zones files from github", FCVAR_GAMEDLL | FCVAR_HIDDEN) {
+    // wst_mm_update
+    // wst_mm_update <all|scripts|zones>
 
-CON_COMMAND_F(wst_mm_update, "Updates the lua code from github", FCVAR_GAMEDLL | FCVAR_HIDDEN) {
-    Message("Updating lua script\n");
-    g_AutoUpdater.updateLuaScript();
+    const char* arg = args.Arg(1);
+
+    if (arg == nullptr || strcmp(arg, "all") == 0) {
+        Message("Updating all files\n");
+        g_AutoUpdater.updateLuaScript();
+        g_AutoUpdater.updateZoneFiles();
+        return;
+    }
+
+    if (strcmp(arg, "scripts") == 0) {
+        Message("Updating scripts\n");
+        g_AutoUpdater.updateLuaScript();
+        return;
+    }
+
+    if (strcmp(arg, "zones") == 0) {
+        Message("Updating zones\n");
+        g_AutoUpdater.updateZoneFiles();
+        return;
+    }
+
+    Message("Invalid argument: %s\n", arg);
+    Message("Usage: wst_mm_update <all|scripts|zones>\n");
 }
 
 // Called by wst lua plugin to save records to disk

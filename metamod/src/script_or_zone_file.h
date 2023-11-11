@@ -1,14 +1,14 @@
-#ifndef WST_LUA_FILE_H
-#define WST_LUA_FILE_H
+#ifndef WST_SCRIPT_OR_ZONE_FILE_H
+#define WST_SCRIPT_OR_ZONE_FILE_H
 
 
 #include <filesystem>
 #include "steam/isteamhttp.h"
 
-class LuaFile {
+class ScriptOrZoneFile {
 public:
-    LuaFile(std::filesystem::path path, const char* url);
-    ~LuaFile();
+    ScriptOrZoneFile(std::filesystem::path path, const char* url);
+    ~ScriptOrZoneFile();
 
     void updateFile();
 
@@ -17,10 +17,10 @@ public:
 private:
     void handleHTTPResponse(HTTPRequestCompleted_t* response, bool failed);
     // Track HTTP request callbacks.
-    using HTTPCallback = CCallResult<LuaFile, HTTPRequestCompleted_t>;
+    using HTTPCallback = CCallResult<ScriptOrZoneFile, HTTPRequestCompleted_t>;
     std::vector<std::unique_ptr<HTTPCallback>> http_callbacks;
 
 };
 
 
-#endif //WST_LUA_FILE_H
+#endif //WST_SCRIPT_OR_ZONE_FILE_H

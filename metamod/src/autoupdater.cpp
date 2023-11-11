@@ -5,7 +5,7 @@
 #include <filesystem>
 #include <vector>
 
-#include "lua_file.h"
+#include "script_or_zone_file.h"
 
 namespace fs = std::filesystem;
 
@@ -31,6 +31,24 @@ std::filesystem::path getGameDir() {
     return getPluginDir().parent_path().parent_path().parent_path().parent_path();
 }
 
+bool startsWith(const std::string& fullString, const std::string& starting) {
+    if (fullString.length() >= starting.length()) {
+        return (0 == fullString.compare(0, starting.length(), starting));
+    } else {
+        return false;
+    }
+}
+
+bool endsWith(const std::string& fullString, const std::string& ending) {
+    if (fullString.length() >= ending.length()) {
+        return (0 == fullString.compare(fullString.length() - ending.length(), ending.length(), ending));
+    } else {
+        return false;
+    }
+}
+
+
+
 void createDirectoryIfNotExists(const fs::path& dirPath) {
     if (!fs::exists(dirPath)) {
         Message("Creating directory %s\n", dirPath.string().data());
@@ -52,10 +70,29 @@ void AutoUpdater::ensureDirectoriesExist() const {
     createDirectoryIfNotExists(this->gameDirPath / "scripts" / "wst_zones");
 }
 
+void AutoUpdater::cleanScripts() const {
+    Message("Cleaning scripts\n");
+    fs::remove(this->gameDirPath / "scripts" / "vscripts" / "wst.lua");
+    fs::remove_all(this->gameDirPath / "scripts" / "vscripts" / "wst");
+    
+    // find all files starting with wst- and ending with .lua in the vsctipts directory (legacy)
+    for (const auto& entry : fs::directory_iterator(this->gameDirPath / "scripts" / "vscripts")) {
+        if (startsWith(entry.path().filename().string(), "wst-") &&
+            endsWith(entry.path().filename().string(), ".lua")) {
+            fs::remove(entry.path());
+        }
+    }
+}
+
 
 void AutoUpdater::updateLuaScript() {
     ensureDirectoriesExist();
-    sendHTTPRequest();
+    sendHTTPRequest("https://raw.githubusercontent.com/ws-cs2/cs2-surftimer/main/autoupdate_scripts.txt");
+}
+
+void AutoUpdater::updateZoneFiles() {
+    ensureDirectoriesExist();
+    sendHTTPRequest("https://raw.githubusercontent.com/ws-cs2/cs2-surftimer/main/autoupdate_zones.txt");
 }
 
 AutoUpdater::AutoUpdater() {
@@ -64,9 +101,9 @@ AutoUpdater::AutoUpdater() {
 
 AutoUpdater::~AutoUpdater() {}
 
-void AutoUpdater::sendHTTPRequest() {
-    Message("[Autoupdate] Sending HTTP Request\n");
-    auto req = Framework::SteamHTTP()->CreateHTTPRequest(k_EHTTPMethodGET, "https://raw.githubusercontent.com/ws-cs2/cs2-surftimer/main/autoupdate.txt");
+void AutoUpdater::sendHTTPRequest(const char* url) {
+    Message("[Autoupdate] Sending HTTP Request -> %s\n", url);
+    auto req = Framework::SteamHTTP()->CreateHTTPRequest(k_EHTTPMethodGET, url);
 
     std::unique_ptr<HTTPCallback> http_callback = std::make_unique<HTTPCallback>();
     http_callback->SetGameserverFlag();
@@ -112,11 +149,11 @@ void AutoUpdater::handleHTTPResponse(HTTPRequestCompleted_t *response, bool fail
         lines.push_back(line);
     }
 
-    // for each line create a LuaFile object
+    // for each line create a ScriptOrZoneFile object
     for (auto& line : lines) {
         std::string url = "https://raw.githubusercontent.com/ws-cs2/cs2-surftimer/main/" + line;
         std::filesystem::path path = this->gameDirPath / line; // Correctly combine paths
-        LuaFile* luaFile = new LuaFile(path, url.c_str());
+        ScriptOrZoneFile* luaFile = new ScriptOrZoneFile(path, url.c_str());
         luaFile->updateFile();
     }
 
