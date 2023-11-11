@@ -36,6 +36,8 @@ add_executable(wst
         src/script_or_zone_file.cpp
         src/script_or_zone_file.h
         src/core/common.h
+        src/core/dlinfo.cpp
+        src/core/dlinfo.h
 )
 
 # Dummy target to integrate custom build script

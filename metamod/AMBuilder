@@ -46,6 +46,7 @@ for sdk_name in MMSPlugin.sdks:
       'src/autoupdater.cpp',
       'src/core/schemasystem.cpp',
       'src/core/whereami.cpp',
+      'src/core/dlinfo.cpp'
     ]
 
     if sdk_name in ['dota', 'cs2']:

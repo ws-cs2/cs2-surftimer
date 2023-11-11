@@ -7,10 +7,7 @@
 #include "interface.h"
 #include "strtools.h"
 #include "metamod_oslink.h"
-
-#ifdef _WIN32
-#include <Psapi.h>
-#endif
+#include "dlinfo.h"
 
 
 #ifdef _WIN32
@@ -44,16 +41,13 @@ public:
         if (!m_hModule)
             Error("Could not find %s\n", szModule);
 
-#ifdef _WIN32
-        MODULEINFO m_hModuleInfo;
-        GetModuleInformation(GetCurrentProcess(), m_hModule, &m_hModuleInfo, sizeof(m_hModuleInfo));
+        dlinfo_t info;
+        int error = dlinfo(m_hModule, &info);
+        if (error != 0)
+            Error("Could not get info for %s\n", szModule);
 
-        m_base = (void *)m_hModuleInfo.lpBaseOfDll;
-        m_size = m_hModuleInfo.SizeOfImage;
-#else
-        if (int e = GetModuleInformation(szModule, &m_base, &m_size))
-			Error("Failed to get module info for %s, error %d\n", szModule, e);
-#endif
+        m_base = info.address;
+        m_size = info.size;
     }
 
     void *FindSignature(const byte *pData, size_t length)
