@@ -55,7 +55,7 @@ First will first need to [install Metamod](https://www.sourcemm.net/downloads.ph
 
 Then install [Will's SurfTimer Metamod Plugin](https://github.com/ws-cs2/cs2-surftimer/releases/),  [Lua Unlocker](https://github.com/Source2ZE/LuaUnlocker) and optionally [Movement Unlocker](https://github.com/Source2ZE/MovementUnlocker).
 
-The first time you run the server run the following commands:
+The first time you run the server run the following commands in your server console
 ```
 wst_mm_update scripts
 wst_mm_update zones
