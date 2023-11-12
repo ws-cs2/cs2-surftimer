@@ -24,6 +24,7 @@ A experimental simple surf timer using the depricated Lua [VScript API](https://
  - Surf KITSUNE [ded-community.de] - `128.140.106.242:27023`
  - Surf UTOPIA (US#2) [ded-community.de] - `5.161.216.93:27015`
  - Surf KITSUNE (US#2) [ded-community.de] - `5.161.216.93:27016`
+ - CSPORTAL.sk | Strenge Surf - `cs.csportal.sk:27023`
  - [EU] Surf Easy  - `play.cs-portal.eu:27023`
  - [CZ/SK] Surf Easy - `play.cs-portal.eu:27024`
 
