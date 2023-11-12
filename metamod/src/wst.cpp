@@ -303,7 +303,7 @@ const char *WSTPlugin::GetLicense() {
 }
 
 const char *WSTPlugin::GetVersion() {
-    return "1.1.0";
+    return "1.1.1";
 }
 
 const char *WSTPlugin::GetDate() {
