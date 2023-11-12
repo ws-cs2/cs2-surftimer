@@ -30,6 +30,12 @@ A experimental simple surf timer using the depricated Lua [VScript API](https://
 
 Need help, interested in running a dedicated server or want to make some improvments? https://discord.gg/Ms3AdWdH4X
 
+## Chat commands
+
+All chat commands can be prefixed by ! or /
+
+- r: Restarts your timer
+
 ## Commands
 
 - wst_help: displays a help menu
@@ -38,6 +44,9 @@ Need help, interested in running a dedicated server or want to make some improvm
 - wst_cp: Checkpoint (saveloc)
 - wst_tele: Teleport to checkpoint (stops your timer)
 
+# Admin Commands
+- wst_mm_update scripts: automatically updates the timers vscripts from github
+- wst_mm_update zones:  automatically updates the timers zones from the zones from github
 
 
 ## Installation
@@ -46,15 +55,16 @@ First will first need to [install Metamod](https://www.sourcemm.net/downloads.ph
 
 Then install [Will's SurfTimer Metamod Plugin](https://github.com/ws-cs2/cs2-surftimer/releases/),  [Lua Unlocker](https://github.com/Source2ZE/LuaUnlocker) and optionally [Movement Unlocker](https://github.com/Source2ZE/MovementUnlocker).
 
-Now copy the 'scripts' folder in this repository to `game/csgo`.
+The first time you run the server run the following commands:
+```
+wst_mm_update scripts
+wst_mm_update zones
+```
 
-Your resulting directory should look like 
- - `game/csgo/scripts/vscripts/wst.lua` (and other wst files)
- - `game/csgo/scripts/wst_zones/surf_beginner.txt` (and other zones)
- - `game/csgo/scripts/wst_records` (empty folder)
+These commands will automatically download the latest Vscript's and zones for the timer. As the timer is being updated everyday I would recommend updating the scripts regularily.
 
-Then in 'cfg' if you are running on listen server create (or add to) 'listenserver.cfg'. If you are running a dedicated server then create (or add to) 'server.cfg'.
-
+In the 'cfg' folder if you are running on listen server create (or add to) 'listenserver.cfg'. 
+If you are running a dedicated server then create (or add to) 'server.cfg'.
 ```
 sv_cheats 1
 script_reload_code wst
