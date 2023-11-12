@@ -1,5 +1,14 @@
+function UserIdToSlot(id)
+    return bit.band(id, 0xFF)
+end
+
+function EntityIndex(id)
+    return bit.band(id, 0x3FFF)
+end
+    
+
 function EHandleToHScript(iPawnId)
-    return EntIndexToHScript(bit.band(iPawnId, 0x3FFF))
+    return EntIndexToHScript(EntityIndex(iPawnId))
 end
 
 function CalculateBoxFromVectors(v1, v2)

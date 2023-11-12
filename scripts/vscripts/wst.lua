@@ -406,19 +406,29 @@ function Activate()
 end
 
 ListenToGameEvent("player_connect", function(event)
-    PLAYER_CONNECT_TABLE[event.userid] = event
-    print("player_connect" .. event.userid)
+    PLAYER_CONNECT_TABLE[UserIdToSlot(event.userid)] = event
+    print("player_connect" .. UserIdToSlot(event.userid))
 end, nil)
 
 ListenToGameEvent("player_disconnect", function(event)
-    PLAYER_CONNECT_TABLE[event.userid] = nil
-    print("player_disconnect" .. event.userid)
+    PLAYER_CONNECT_TABLE[UserIdToSlot(event.userid)] = nil
+    print("player_disconnect" .. UserIdToSlot(event.userid))
 end, nil)
 
 ListenToGameEvent("player_spawn", function(event)
     local player_connect = PLAYER_CONNECT_TABLE[event.userid]
+    -- print("PLAYER_SPAWN [userid]: " .. event.userid)
+    -- print("PLAYER_SPAWN [userid_slot]: " .. UserIdToSlot(event.userid))
+    -- print("PLAYER_SPAWN [userid_pawn]: " .. event.userid_pawn)
+    -- if player_connect ~= nil then
+    --     print("PLAYER_SPAWN [networkid]: " .. player_connect.networkid)
+    --     print("PLAYER_SPAWN [name]: " .. player_connect.name)
+    --     print("PLAYER_SPAWN [address]: " .. player_connect.address)
+    -- end
+    
     local user = EHandleToHScript(event.userid_pawn)
-    user.user_id = event.userid
+    user.user_id = UserIdToSlot(event.userid)
+
     if player_connect ~= nil then
         user.steam_id = player_connect.networkid
         user.name = player_connect.name
@@ -427,10 +437,18 @@ ListenToGameEvent("player_spawn", function(event)
 end, nil)
 
 ListenToGameEvent("player_chat", function(event)
-    -- This is off by 1 from the userid we get in lua
-    -- IE first player.user_id to join is 1 in lua but 0 from C++
-    -- Unsure if s2ze just sending it wrong or not
-    local userid = event.userid - 1
+    -- Slot is the index of the player between 0 and 63
+    -- EntityIndex for playercontroller is slot+1
+    -- slot = userid & 0xFF
+    -- in our code because I didn't know what I was doing at the time thought user_id was the slot
+    
+    -- Another issue is that some plugins are sending player_chat with the ent index of the playercontroller
+    -- instead of the userid/slot
+    
+    -- This will majorly screw chat commands
+
+    print("PLAYER_CHAT [userid]: " .. event.userid)
+    local userid = UserIdToSlot(event.userid)
 
     local chatPlayer = nil
     local players = Entities:FindAllByClassname("player")
