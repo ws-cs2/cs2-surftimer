@@ -28,6 +28,7 @@ A experimental simple surf timer using the depricated Lua [VScript API](https://
  - [EU] Surf Easy  - `play.cs-portal.eu:27023`
  - [CZ/SK] Surf Easy - `play.cs-portal.eu:27024`
  - [TLS] 24/7 Surf Utopia - `139.177.152.6:27015`
+ - CHILL.LV《 Surf Timer 》 # EU North - `89.201.4.164:27018`
 
 ## Discord
 
