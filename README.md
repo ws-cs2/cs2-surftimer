@@ -46,7 +46,7 @@ All chat commands can be prefixed by ! or /
 - wst_cp: Checkpoint (saveloc)
 - wst_tele: Teleport to checkpoint (stops your timer)
 
-# Admin Commands
+## Sever Commands
 - wst_mm_update scripts: automatically updates the timers vscripts from github
 - wst_mm_update zones:  automatically updates the timers zones from the zones from github
 
