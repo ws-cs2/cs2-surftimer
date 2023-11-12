@@ -169,7 +169,7 @@ void DetourHostSay(SC_CBaseEntity *pController, CCommand &args, bool teamonly, i
 
     if (pEvent) {
         pEvent->SetBool("teamonly", teamonly);
-        pEvent->SetInt("userid", pController->m_pEntity->m_EHandle.GetEntryIndex());
+        pEvent->SetInt("userid", pController->m_pEntity->GetEntityIndex().Get());
         pEvent->SetString("text", args[1]);
 
         Framework::GameEventManager()->FireEvent(pEvent, true);
