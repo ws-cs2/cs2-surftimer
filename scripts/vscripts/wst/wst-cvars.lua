@@ -42,6 +42,7 @@ function SurfCVars()
     SendToServerConsole("bot_quota 0")
     SendToServerConsole("mp_autoteambalance 0")
     SendToServerConsole("mp_limitteams 0")
+    SendToServerConsole("mp_humanteam CT")
     SendToServerConsole("mp_spectators_max 64")
     SendToServerConsole("sv_cheats 0")
 end
