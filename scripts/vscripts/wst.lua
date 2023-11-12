@@ -416,7 +416,7 @@ ListenToGameEvent("player_disconnect", function(event)
 end, nil)
 
 ListenToGameEvent("player_spawn", function(event)
-    local player_connect = PLAYER_CONNECT_TABLE[event.userid]
+    local player_connect = PLAYER_CONNECT_TABLE[UserIdToSlot(event.userid)]
     -- print("PLAYER_SPAWN [userid]: " .. event.userid)
     -- print("PLAYER_SPAWN [userid_slot]: " .. UserIdToSlot(event.userid))
     -- print("PLAYER_SPAWN [userid_pawn]: " .. event.userid_pawn)
