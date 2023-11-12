@@ -27,6 +27,7 @@ A experimental simple surf timer using the depricated Lua [VScript API](https://
  - CSPORTAL.sk | Strenge Surf - `cs.csportal.sk:27023`
  - [EU] Surf Easy  - `play.cs-portal.eu:27023`
  - [CZ/SK] Surf Easy - `play.cs-portal.eu:27024`
+ - [TLS] 24/7 Surf Utopia - `139.177.152.6:27015`
 
 ## Discord
 
