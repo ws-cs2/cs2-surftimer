@@ -206,17 +206,14 @@ WSTConfig WSTPlugin::LoadOrCreateConfig() {
     char filePath[512];
     Q_snprintf(filePath, sizeof(filePath), "scripts/wst_config/%s.txt", "config");
 
-    KeyValues *data;
+    bool detourHostSay = true;
     if (kv->LoadFromFile(Framework::FileSystem(), filePath, "MOD")) {
         // Find the data subkey
-        data = kv->FindKey("DetourHostSay", true);
+        detourHostSay = kv->GetBool("DetourHostSay", true);
     } else {
         // Initialize the KeyValues structure if the file doesn't exist
         kv->SetBool("DetourHostSay", true);
-        data = kv->FindKey("DetourHostSay", true);
     }
-
-    bool detourHostSay = data->GetBool("DetourHostSay", true);
 
     if (kv->SaveToFile(Framework::FileSystem(), filePath, "MOD")) {
         Message("Config saved successfully\n");
