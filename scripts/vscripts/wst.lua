@@ -3,7 +3,7 @@
 --          https://github.com/surftimer/SurfTimer script_trigger_multiple mechanism for making a timer
 --          https://github.com/Source2ZE/LuaUnlocker Lua Unlocker
 
-local CURRENT_VERSION = "_1.0.0"
+local CURRENT_VERSION = "_1.2.0"
 
 require("wst/wst-leaderboard")
 require("wst/wst-chat")
@@ -46,7 +46,7 @@ local END_ZONE_2_V2 = nil
 
 local PLAYER_CONNECT_TABLE = {}
 
-function SendTextToClient(player, text)
+function SendTextToClientConsole(player, text)
     local ptClientCommand = Entities:FindByClassname(nil, "point_clientcommand")
 
     if ptClientCommand == nil then
@@ -55,6 +55,13 @@ function SendTextToClient(player, text)
     end
 
     DoEntFireByInstanceHandle(ptClientCommand, "command", "echo " .. text, 0.1, player, player)
+end
+
+function SendTextToClientChat(player, text)
+    DebugPrintPlayer(player)
+    local slot = UserIdToSlot(player.user_id)
+    -- I don't like prefixing with [wst] but I can't figured out colored text for client chat and otherwise it gets lost
+    SendToServerConsole("wst_mm_chat " .. slot .. " " .. "\"[WST] " .. text .. "\"")
 end
 
 function CreateStartZone(v1, v2)
@@ -137,7 +144,7 @@ function CreateEndZone(idx, v1, v2)
 
                 FireGameEvent("cs_win_panel_round", {
                     ["funfact_token"] = "<font class='fontSize-xl' color='#5BEB60'>" ..
-                    player.name .. " </font><font class='fontSize-l'>just set a new server record!</font>",
+                        player.name .. " </font><font class='fontSize-l'>just set a new server record!</font>",
                 })
                 TimerOnce(10, function()
                     FireGameEvent("round_start", nil)
@@ -226,11 +233,199 @@ function LoadZones(zone_file_table)
     end
 end
 
-Convars:RegisterCommand("wst_getpos", function()
-    local player = Convars:GetCommandClient()
+-- !version
+function CommandVersion(player, SendText)
+    SendText(player, "Will's Surf Timer " .. CURRENT_VERSION)
+end
+
+-- !getpos
+function CommandGetPos(player, SendText)
     local location = player:GetAbsOrigin()
-    SendTextToClient(player, location.x .. ", " .. location.y .. ", " .. location.z)
-end, nil, 0)
+    SendText(player, location.x .. ", " .. location.y .. ", " .. location.z)
+end
+
+-- !r
+function CommandR(player, SendText)
+    TeleportToStartZone(player)
+end
+
+-- !top
+function CommandTop(player, SendText)
+    local topPlayers = getTopPlayers(10)
+
+    for i, p in ipairs(topPlayers)
+    do
+        local position, total_players = getPlayerPosition(p.steam_id)
+        SendText(player, position .. " " .. p.name .. " " .. FormatTime(p.time))
+    end
+end
+
+-- !wr
+function CommandWr(player, SendText)
+    local wrTime = getTopPlayers(1)[1]
+    if wrTime ~= nil then
+        SendText(player, "Server record " .. FormatTime(wrTime.time) .. " by " .. wrTime.name)
+    else
+        SendText(player, "No server record set yet!")
+    end
+end
+
+-- !pr
+function CommandPr(player, SendText)
+    local previousPosition, _, previousTime = getPlayerPosition(player.steam_id)
+    if previousPosition == nil then
+        SendText(player, "You have no record on this map!")
+    else
+        SendText(player, "Your personal record was " .. FormatTime(previousTime))
+    end
+end
+
+-- !cp
+function CommandCp(player, SendText)
+    player.cp_saved = true
+    player.cp_origin = player:GetAbsOrigin()
+    player.cp_angles = player:EyeAngles()
+    player.cp_velocity = player:GetVelocity()
+    SendText(player, "Saved your current position! Use !tele to teleport back to it.")
+end
+
+-- !tele
+function CommandTele(player, SendText)
+    if player.cp_saved then
+        player.timer = nil
+        player:SetAbsOrigin(player.cp_origin)
+        player:SetAngles(player.cp_angles.x, player.cp_angles.y, player.cp_angles.z)
+        player:SetVelocity(player.cp_velocity)
+    else
+        SendText(player, "You have not saved a position yet!")
+    end
+end
+
+-- !spec
+function CommandSpec(player, SendText)
+    player:SetTeam(1)
+end
+
+-- !hidehud
+function CommandHideHud(player, SendText)
+    player.hide_hud = true
+    SendText(player, "Hud hidden")
+end
+
+-- !showhud
+function CommandShowHud(player, SendText)
+    player.hide_hud = false
+    SendText(player, "Hud visible")
+end
+
+function CommandChatHelp(player, SendText)
+    SendText(player, "Will\'s Surf Timer Commands")
+    SendText(player, "Type !r to teleport to the start zone (bind t wst_r)")
+    SendText(player, "Type !wr to see the server record")
+    SendText(player, "Type !top to see the top 10 players on this map")
+    SendText(player, "Type !cp to save your current position")
+    SendText(player, "Type !tele to teleport to your saved position")
+    SendText(player, "Type !spec to go to spectator team")
+    SendText(player, "Type wst_help in console for more commands")
+end
+
+WST_COMMANDS = {
+    ["version"] = {
+        console = CommandVersion,
+        chat = CommandVersion,
+        help = "Shows the version of the plugin"
+    },
+    ["getpos"] = {
+        console = CommandGetPos,
+        chat = CommandGetPos,
+        help = "Shows your current x, y, z location (for zoning maps)"
+    },
+    ["r"] = {
+        console = CommandR,
+        chat = CommandR,
+        help = "Teleport to the start zone"
+    },
+    ["top"] = {
+        console = CommandTop,
+        chat = CommandTop,
+        help = "Show the top 10 players on this map"
+    },
+    ["wr"] = {
+        console = CommandWr,
+        chat = CommandWr,
+        help = "Show the server record"
+    },
+    ["sr"] = {
+        console = CommandWr,
+        chat = CommandWr,
+        help = "Show the server record"
+    },
+    ["pr"] = {
+        console = CommandPr,
+        chat = CommandPr,
+        help = "Show your personal record on this map"
+    },
+    ["cp"] = {
+        console = CommandCp,
+        chat = CommandCp,
+        help = "Save your current position"
+    },
+    ["tele"] = {
+        console = CommandTele,
+        chat = CommandTele,
+        help = "Teleport to your saved position (stops your timer)"
+    },
+    ["spec"] = {
+        console = CommandSpec,
+        chat = CommandSpec,
+        help = "Go to spectator team"
+    },
+    ["hidehud"] = {
+        console = CommandHideHud,
+        chat = CommandHideHud,
+        help = "Hide the hud"
+    },
+    ["showhud"] = {
+        console = CommandShowHud,
+        chat = CommandShowHud,
+        help = "Show the hud"
+    },
+    ["help"] = {
+        console = nil,
+        chat = CommandChatHelp,
+        help = "Shows the help menu"
+    }
+}
+
+-- lua is retarded
+-- tables are not ordered unless they are array tables
+WST_COMMAND_ORDER = {
+    "r",
+    "top",
+    "wr",
+    "sr",
+    "pr",
+    "cp",
+    "tele",
+    "spec",
+    "hidehud",
+    "showhud",
+    --    "version",
+    "getpos",
+    "help"
+}
+
+function GetLongestCommandNameLength()
+    local longest = 0
+    for name, cmd in pairs(WST_COMMANDS) do
+        if string.len(name) > longest then
+            longest = string.len(name)
+        end
+    end
+    return longest
+end
+
+-- do help seperately since it needs to reference the command list
 
 
 -- local zones = LoadKeyValues('scripts/wst_zones/surf_beginner_debug.txt')
@@ -242,84 +437,51 @@ end
 
 LoadZones(zones)
 
-function TeleportToStartZone(player)
-    local center, _, _ = CalculateBoxFromVectors(START_ZONE_V1, START_ZONE_V2)
-    player:SetAbsOrigin(center)
-    player:SetVelocity(Vector(0, 0, 0))
-end
-
-Convars:RegisterCommand("wst_version", function()
-    local player = Convars:GetCommandClient()
-    SendTextToClient(player, "Will's Surf Timer " .. CURRENT_VERSION)
-end, nil, 0)
-
-
 Convars:RegisterCommand("wst_help", function()
     local player = Convars:GetCommandClient()
     local text = "Will's Surf Timer"
     local border = string.rep("-", string.len(text) + 4)
     local middleLine = "| " .. text .. " |"
-    SendTextToClient(player, border)
-    SendTextToClient(player, middleLine)
-    SendTextToClient(player, border)
-    SendTextToClient(player, "\"https://github.com/ws-cs2/cs2-surftimer\"")
-    SendTextToClient(player, "")
-    SendTextToClient(player, "Respawn Bind:")
-    SendTextToClient(player, "bind t wst_r - Binds t on your keyboard to respawn, you can change t to any key")
-    SendTextToClient(player, "")
-    SendTextToClient(player, "Commands:")
-    SendTextToClient(player, "wst_r - Teleport to the start zone")
-    SendTextToClient(player, "wst_top - Show the top 10 players on this map")
-    SendTextToClient(player, "wst_cp - Save your current position")
-    SendTextToClient(player, "wst_tele - Teleport to your saved position (stops your timer)")
-    SendTextToClient(player, "wst_version - Show the version of the plugin")
-    SendTextToClient(player, "wst_help - Show this help message")
-    SendTextToClient(player, "wst_getpos - Shows your current x, y, z location (for zoning maps)")
-    SendTextToClient(player, "")
-    SendTextToClient(player, "Chat Commands: (may work depending on the server)")
-    SendTextToClient(player, "!r - Teleport to the start zone")
-    SendTextToClient(player, "!spec - Go to spectator team")
-    SendTextToClient(player, "")
-    SendTextToClient(player, "Credits:")
-    SendTextToClient(player, "will - Plugin creator")
-    SendTextToClient(player, "b3nny (FutureGN) - Zoning maps and testing")
-end, nil, 0)
+    SendTextToClientConsole(player, border)
+    SendTextToClientConsole(player, middleLine)
+    SendTextToClientConsole(player, border)
+    SendTextToClientConsole(player, "\"https://github.com/ws-cs2/cs2-surftimer\"")
+    SendTextToClientConsole(player, "\"https://discord.gg/ujMfSwSXCy\"")
+    SendTextToClientConsole(player, "")
+    SendTextToClientConsole(player, "Respawn Bind:")
+    SendTextToClientConsole(player, "bind t wst_r - Binds t on your keyboard to respawn, you can change t to any key")
+    SendTextToClientConsole(player, "")
+    SendTextToClientConsole(player, "Commands:")
+    local length = GetLongestCommandNameLength()
 
-Convars:RegisterCommand("wst_cp", function()
-    local player = Convars:GetCommandClient()
-
-    player.cp_saved = true
-    player.cp_origin = player:GetAbsOrigin()
-    player.cp_angles = player:EyeAngles()
-    player.cp_velocity = player:GetVelocity()
-end, nil, 0)
-
-Convars:RegisterCommand("wst_tele", function()
-    local player = Convars:GetCommandClient()
-    if player.cp_saved then
-        player.timer = nil
-        player:SetAbsOrigin(player.cp_origin)
-        player:SetAngles(player.cp_angles.x, player.cp_angles.y, player.cp_angles.z)
-        player:SetVelocity(player.cp_velocity)
-    end
-end, nil, 0)
-
-Convars:RegisterCommand("wst_top", function()
-    local player = Convars:GetCommandClient()
-    local topPlayers = getTopPlayers(10)
-
-    for i, p in ipairs(topPlayers)
+    for i, name in ipairs(WST_COMMAND_ORDER)
     do
-        local position, total_players = getPlayerPosition(p.steam_id)
-        SendTextToClient(player, position .. "/" .. total_players .. " " .. p.name .. " " .. FormatTime(p.time))
+        local cmd = WST_COMMANDS[name]
+        local padding = string.rep(" ", length - string.len(name))
+        SendTextToClientConsole(player, "!" .. name .. padding .. " / wst_" .. name .. padding .. " - " .. cmd.help)
     end
+    SendTextToClientConsole(player, "")
+    SendTextToClientConsole(player, "Credits:")
+    SendTextToClientConsole(player, "will - Plugin creator")
+    SendTextToClientConsole(player, "b3nny (FutureGN) - Zoning maps and testing")
 end, nil, 0)
 
+-- Register commands
+for name, cmd in pairs(WST_COMMANDS) do
+    if cmd.console ~= nil then
+        Convars:RegisterCommand("wst_" .. name, function(...)
+            local player = Convars:GetCommandClient()
+            cmd.console(player, SendTextToClientConsole)
+        end, nil, 0)
+    end
+end
 
-Convars:RegisterCommand("wst_r", function()
-    local player = Convars:GetCommandClient()
-    TeleportToStartZone(player)
-end, nil, 0)
+
+function TeleportToStartZone(player)
+    local center, _, _ = CalculateBoxFromVectors(START_ZONE_V1, START_ZONE_V2)
+    player:SetAbsOrigin(center)
+    player:SetVelocity(Vector(0, 0, 0))
+end
 
 function ConvertTSpawnsToCTSpawns()
     print("[WST] ConvertTSpawnsToCTSpawns.start")
@@ -371,6 +533,10 @@ function PlayerTick(player)
     -- TODO: See if I can space out the hud with unicode chars
     -- local UNICODE_EMPTY_CHARACTER = "⠀"
 
+    if player.hide_hud == true then
+        return
+    end
+
     local playerHtml = BuildPlayerHudHtml(player, speed)
 
     FireGameEvent("show_survival_respawn_status",
@@ -392,7 +558,7 @@ function Tick()
 end
 
 function Activate()
-    print("[WST] Activate.start" .. tostring(HAS_ACTIVATED))
+    print("[WST] Activate.start")
 
     SurfCVars()
 
@@ -479,26 +645,19 @@ ListenToGameEvent("player_chat", function(event)
     if (chatPlayer == nil) then
         return
     end
-    if event.text == "!r" or event.text == "/r" then
-        TeleportToStartZone(chatPlayer)
-        return
-    end
-    if event.text == "!spec" or event.text == "/spec" then
-        chatPlayer:SetTeam(1)
-        return
-    end
 
-    -- Note: Server crash if the CT team is empty, going to leave it out.
-    -- if event.text == "!ct" or event.text == "/ct" then
-    --     chatPlayer:SetTeam(3)
-    --     return
-    -- end
+    for name, cmd in pairs(WST_COMMANDS) do
+        if event.text == "!" .. name or event.text == "/" .. name then
+            cmd.chat(chatPlayer, SendTextToClientChat)
+            return
+        end
+    end
 end, nil)
 
 
 function ServerMessageHelp()
     ScriptPrintMessageChatAll(ConvertTextToColoredChatString(
-        "<GOLD>Type <GREEN>wst_help<GOLD> in console <GREEN>(~)<GOLD> for surf timer commands"))
+        "<GOLD>Type <GREEN>!help<GOLD> in chat for <GREEN>Will's surf timer<GOLD> commands"))
     return 60
 end
 

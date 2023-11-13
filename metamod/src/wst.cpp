@@ -15,7 +15,9 @@
 #include "core/virtual.h"
 #include "core/cbaseentity.h"
 #include "autoupdater.h"
+
 #include <steam/steam_gameserver.h>
+#include <irecipientfilter.h>
 
 
 namespace fs = std::filesystem;
@@ -159,6 +161,63 @@ CON_COMMAND_F(wst_mm_save_record, "Save a record to disk", FCVAR_GAMEDLL | FCVAR
     }
 }
 
+class CSingleRecipientFilter : public IRecipientFilter
+{
+public:
+    CSingleRecipientFilter(int iRecipient, bool bReliable = true, bool bInitMessage = false) :
+            m_iRecipient(iRecipient), m_bReliable(bReliable), m_bInitMessage(bInitMessage) {}
+
+    ~CSingleRecipientFilter() override {}
+
+    bool IsReliable(void) const override { return m_bReliable; }
+
+    bool IsInitMessage(void) const override { return m_bInitMessage; }
+
+    int GetRecipientCount(void) const override { return 1; }
+
+    CPlayerSlot GetRecipientIndex(int slot) const override { return CPlayerSlot(m_iRecipient); }
+
+private:
+    bool m_bReliable;
+    bool m_bInitMessage;
+    int m_iRecipient;
+};
+
+//void UTIL_SayTextFilter( IRecipientFilter& filter, const char *pText, CBasePlayer *pPlayer, bool bChat )
+typedef void (*UTIL_SayTextFilter)(IRecipientFilter &, const char *, CBaseEntity *, bool);
+static UTIL_SayTextFilter UTIL_SayTextFilterFn = nullptr;
+
+
+void SendChatToClient(int index, const char *msg, ...)
+{
+    va_list args;
+    va_start(args, msg);
+    char buf[256];
+    V_vsnprintf(buf, sizeof(buf), msg, args);
+
+    CSingleRecipientFilter filter(index);
+    UTIL_SayTextFilterFn(filter, buf, nullptr, 0);
+}
+
+CON_COMMAND_F(wst_mm_chat, "Chat to client", FCVAR_GAMEDLL | FCVAR_HIDDEN) {
+    // wst_mm_chat <client index> <message>
+    if (args.ArgC() < 3) {
+        Message("Usage: wst_mm_chat <client index> <message>\n");
+        return;
+    }
+
+    int clientIndex = atoi(args.Arg(1));
+    const char *message = args.Arg(2);
+
+    // add \x10 to the start of the message to make it green
+    char buf[256];
+    V_snprintf(buf, sizeof(buf), "\x10%s", message);
+    message = buf;
+
+
+    SendChatToClient(clientIndex, message);
+}
+
 typedef void (*HostSay)(CBaseEntity * , CCommand & , bool, int,
 const char*);
 static HostSay m_pHostSay = nullptr;
@@ -250,10 +309,17 @@ bool WSTPlugin::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, boo
 
     WSTConfig config = LoadOrCreateConfig();
 
+    // please do not break other metamod plugins :pray: :pray: :pray:
+#ifdef _WIN32
+    UTIL_SayTextFilterFn = (UTIL_SayTextFilter) Framework::ServerModule().FindSignature(
+            R"(\x48\x89\x5C\x24\x2A\x55\x56\x57\x48\x8D\x6C\x24\x2A\x48\x81\xEC\x2A\x2A\x2A\x2A\x49\x8B\xD8)");
+#else
+    UTIL_SayTextFilterFn = (UTIL_SayTextFilter)Framework::ServerModule().FindSignature(R"(\x55\x48\x89\xE5\x41\x57\x49\x89\xD7\x31\xD2\x41\x56\x4C\x8D\x75\x98)");
+#endif
+
     if (config.detourHostSay) {
         Message("Detouring HostSay\n");
         Message("If you are using MetaMod plugins such as CounterStrikeSharp/CS2Fixes, there is a good chance this will break them\n");
-
         // https://github.com/Source2ZE/CS2Fixes/blob/main/gamedata/cs2fixes.games.txt
         // For now only detour HostSay on windows, for linux tell people to use CounterStrikeSharp
         Framework::SchemaSystem() = (CSchemaSystem *) Framework::SchemaSystemModule().FindInterface(
@@ -264,6 +330,7 @@ bool WSTPlugin::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, boo
                 R"(\x44\x89\x4C\x24\x2A\x44\x88\x44\x24\x2A\x55\x53\x56\x57\x41\x54\x41\x55)");
 #else
         m_pHostSay = (HostSay)Framework::ServerModule().FindSignature(R"(\x55\x48\x89\xE5\x41\x57\x49\x89\xFF\x41\x56\x41\x55\x41\x54\x4D\x89\xC4)");
+
 #endif
         auto m_hook = funchook_create();
         funchook_prepare(m_hook, (void **) &m_pHostSay, (void *) &DetourHostSay);
@@ -303,7 +370,7 @@ const char *WSTPlugin::GetLicense() {
 }
 
 const char *WSTPlugin::GetVersion() {
-    return "1.1.2";
+    return "1.2.0";
 }
 
 const char *WSTPlugin::GetDate() {
