@@ -11,6 +11,7 @@ require("wst/wst-cvars")
 require("wst/wst-debug")
 require("wst/wst-utils")
 require("wst/wst-hud")
+require("wst/wst-timers")
 
 print("--------------------")
 print("Will's Surf Timer " .. CURRENT_VERSION)
@@ -135,11 +136,12 @@ function CreateEndZone(idx, v1, v2)
                 ScriptPrintMessageChatAll(ConvertTextToColoredChatString(newWRMessage))
 
                 FireGameEvent("cs_win_panel_round", {
-                    ["funfact_token"] = "<font class='fontSize-xl' color='#5BEB60'>" .. player.name .. " </font><font class='fontSize-l'>just set a new world record!</font>",
+                    ["funfact_token"] = "<font class='fontSize-xl' color='#5BEB60'>" ..
+                    player.name .. " </font><font class='fontSize-l'>just set a new server record!</font>",
                 })
                 TimerOnce(10, function()
                     FireGameEvent("round_start", nil)
-                end)
+                end, "clear_win_panel")
             end
 
             player.timer = nil
@@ -388,13 +390,13 @@ function Tick()
 end
 
 function Activate()
-    print("[WST] Activate.start")
+    print("[WST] Activate.start" .. tostring(HAS_ACTIVATED))
+
     SurfCVars()
 
     if WORLDENT ~= nil then
         WORLDENT:SetContextThink(nil, nil, 0)
     end
-
 
     WORLDENT = Entities:FindByClassname(nil, "worldent")
     if WORLDENT == nil then
@@ -409,6 +411,12 @@ function Activate()
     if END_ZONE_2_V1 ~= nil and END_ZONE_2_V2 ~= nil then
         CreateEndZone("2", END_ZONE_2_V1, END_ZONE_2_V2)
     end
+
+    TimerOnce(1, function()
+        ScriptPrintMessageChatAll(ConvertTextToColoredChatString(
+            "<GREEN>Will's Surf Timer <GOLD>loaded"))
+        ServerMessageHelp()
+    end, "activation_msg")
     print("[WST] Activate.end")
 end
 
@@ -432,7 +440,7 @@ ListenToGameEvent("player_spawn", function(event)
     --     print("PLAYER_SPAWN [name]: " .. player_connect.name)
     --     print("PLAYER_SPAWN [address]: " .. player_connect.address)
     -- end
-    
+
     local user = EHandleToHScript(event.userid_pawn)
     user.user_id = event.userid
 
@@ -448,10 +456,10 @@ ListenToGameEvent("player_chat", function(event)
     -- EntityIndex for playercontroller is slot+1
     -- slot = userid & 0xFF
     -- in our code because I didn't know what I was doing at the time thought user_id was the slot
-    
+
     -- Another issue is that some plugins are sending player_chat with the ent index of the playercontroller
     -- instead of the userid/slot
-    
+
     -- This will majorly screw chat commands
 
     print("PLAYER_CHAT [userid]: " .. event.userid)
@@ -469,7 +477,7 @@ ListenToGameEvent("player_chat", function(event)
     if (chatPlayer == nil) then
         return
     end
-    if event.text == "!r" or event.text == "/r" then        
+    if event.text == "!r" or event.text == "/r" then
         TeleportToStartZone(chatPlayer)
         return
     end
@@ -477,7 +485,7 @@ ListenToGameEvent("player_chat", function(event)
         chatPlayer:SetTeam(1)
         return
     end
-    
+
     -- Note: Server crash if the CT team is empty, going to leave it out.
     -- if event.text == "!ct" or event.text == "/ct" then
     --     chatPlayer:SetTeam(3)
@@ -485,22 +493,46 @@ ListenToGameEvent("player_chat", function(event)
     -- end
 end, nil)
 
-function ServerMessage()
+
+function ServerMessageHelp()
     ScriptPrintMessageChatAll(ConvertTextToColoredChatString(
         "<GOLD>Type <GREEN>wst_help<GOLD> in console <GREEN>(~)<GOLD> for surf timer commands"))
-    return 90
+    return 60
+end
+
+function ServerMessageTop()
+    local wrTime = getTopPlayers(1)[1]
+    if wrTime ~= nil then
+        ScriptPrintMessageChatAll(ConvertTextToColoredChatString(
+            "<GOLD>Server record <GREEN>" .. FormatTime(wrTime.time) .. "<GOLD> by <GREEN>" .. wrTime.name))
+    end
+    return 60
 end
 
 function CreateServerMessageTimer()
-    local name = "wst_timer_info_target"
-    local existing = Entities:FindByName(nil, name)
-    if existing then
-        -- Kill trigger
-        existing:Kill()
-    end
+    local entities = {
+        ["wst_server_message_welcome"] = {
+            ["callback"] = function()
+                return nil
+            end,
+            ["delay"] = 15
+        },
+        ["wst_server_message_top"] = {
+            ["callback"] = ServerMessageTop,
+            ["delay"] = 30
+        },
+        ["wst_server_message_help"] = {
+            ["callback"] = ServerMessageHelp,
+            ["delay"] = 60
+        },
+    }
 
-    local ent = SpawnEntityFromTableSynchronous("info_target", { targetname = "wst_timer_info_target" })
-    ent:SetContextThink(nil, ServerMessage, 10)
+    for name, cb in pairs(entities) do
+        TimerOnce(cb.delay, function()
+            print("MAKING TIMER FOR " .. name .. " " .. cb.delay)
+            Timers:CreateTimer(cb.callback, name)
+        end, name)
+    end
 end
 
 if not PLUGIN_ACTIVATED then

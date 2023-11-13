@@ -44,10 +44,10 @@ function FormatTime(time)
     return string.format("%02d:%02d:%03d", minutes, seconds, milliseconds)
 end
 
-function TimerOnce(delay, callback)
-    local ent = Entities:FindByName(nil, "wst_timer_once")
+function TimerOnce(delay, callback, id)
+    local ent = Entities:FindByName(nil, "wst_timer_once_" .. id)
     if ent == nil then
-        ent = SpawnEntityFromTableSynchronous("info_target", {targetname = "wst_timer_once"})
+        ent = SpawnEntityFromTableSynchronous("info_target", {targetname = "wst_timer_once_" .. id})
     end
     ent:SetThink(
         function()

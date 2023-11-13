@@ -5,3 +5,4 @@ scripts/vscripts/wst/wst-debug.lua
 scripts/vscripts/wst/wst-hud.lua
 scripts/vscripts/wst/wst-leaderboard.lua
 scripts/vscripts/wst/wst-utils.lua
+scripts/vscripts/wst/wst-timers.lua
