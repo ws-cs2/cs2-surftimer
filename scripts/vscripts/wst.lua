@@ -406,17 +406,17 @@ function Activate()
 end
 
 ListenToGameEvent("player_connect", function(event)
-    PLAYER_CONNECT_TABLE[UserIdToSlot(event.userid)] = event
-    print("player_connect" .. UserIdToSlot(event.userid))
+    PLAYER_CONNECT_TABLE[event.userid] = event
+    print("player_connect" .. event.userid)
 end, nil)
 
 ListenToGameEvent("player_disconnect", function(event)
-    PLAYER_CONNECT_TABLE[UserIdToSlot(event.userid)] = nil
-    print("player_disconnect" .. UserIdToSlot(event.userid))
+    PLAYER_CONNECT_TABLE[event.userid] = nil
+    print("player_disconnect" .. event.userid)
 end, nil)
 
 ListenToGameEvent("player_spawn", function(event)
-    local player_connect = PLAYER_CONNECT_TABLE[UserIdToSlot(event.userid)]
+    local player_connect = PLAYER_CONNECT_TABLE[event.userid]
     -- print("PLAYER_SPAWN [userid]: " .. event.userid)
     -- print("PLAYER_SPAWN [userid_slot]: " .. UserIdToSlot(event.userid))
     -- print("PLAYER_SPAWN [userid_pawn]: " .. event.userid_pawn)
@@ -427,7 +427,7 @@ ListenToGameEvent("player_spawn", function(event)
     -- end
     
     local user = EHandleToHScript(event.userid_pawn)
-    user.user_id = UserIdToSlot(event.userid)
+    user.user_id = event.userid
 
     if player_connect ~= nil then
         user.steam_id = player_connect.networkid
@@ -448,13 +448,13 @@ ListenToGameEvent("player_chat", function(event)
     -- This will majorly screw chat commands
 
     print("PLAYER_CHAT [userid]: " .. event.userid)
-    local userid = UserIdToSlot(event.userid)
+    local playerSlot = UserIdToSlot(event.userid)
 
     local chatPlayer = nil
     local players = Entities:FindAllByClassname("player")
     for i, player in ipairs(players)
     do
-        if player.user_id == userid then
+        if UserIdToSlot(player.user_id) == playerSlot then
             chatPlayer = players[i]
             break
         end
