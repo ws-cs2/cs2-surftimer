@@ -133,6 +133,13 @@ function CreateEndZone(idx, v1, v2)
                 local newWRMessage = "<GOLD>" .. player.name .. " <WHITE>set a new <GOLD>WR <WHITE>with <GOLD>" ..
                     FormatTime(time) .. "!"
                 ScriptPrintMessageChatAll(ConvertTextToColoredChatString(newWRMessage))
+
+                FireGameEvent("cs_win_panel_round", {
+                    ["funfact_token"] = "<font class='fontSize-xl' color='#5BEB60'>" .. player.name .. " </font><font class='fontSize-l'>just set a new world record!</font>",
+                })
+                TimerOnce(10, function()
+                    FireGameEvent("round_start", nil)
+                end)
             end
 
             player.timer = nil
