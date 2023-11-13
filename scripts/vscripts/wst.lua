@@ -466,6 +466,16 @@ ListenToGameEvent("player_chat", function(event)
         TeleportToStartZone(chatPlayer)
         return
     end
+    if event.text == "!spec" or event.text == "/spec" then
+        chatPlayer:SetTeam(1)
+        return
+    end
+    
+    -- Note: Server crash if the CT team is empty, going to leave it out.
+    -- if event.text == "!ct" or event.text == "/ct" then
+    --     chatPlayer:SetTeam(3)
+    --     return
+    -- end
 end, nil)
 
 function ServerMessage()
