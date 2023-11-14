@@ -35,23 +35,22 @@ A experimental simple surf timer using the depricated Lua [VScript API](https://
 
 Need help, interested in running a dedicated server or want to make some improvments? https://discord.gg/Ms3AdWdH4X
 
-## Chat commands
-
-All chat commands can be prefixed by ! or /
-
-- r: Restarts your timer
-
 ## Commands
 
-- wst_help: displays a help menu
-- wst_r: Restarts your timer and teleports you to the startzone
-- wst_top: prints the top 10 times to console
-- wst_cp: Checkpoint (saveloc)
-- wst_tele: Teleport to checkpoint (stops your timer)
-
-## Sever Commands
-- wst_mm_update scripts: automatically updates the timers vscripts from github
-- wst_mm_update zones:  automatically updates the timers zones from the zones from github
+```
+[Console] !r       / wst_r       - Teleport to the start zone
+[Console] !top     / wst_top     - Show the top 10 players on this map
+[Console] !wr      / wst_wr      - Show the server record
+[Console] !sr      / wst_sr      - Show the server record
+[Console] !pr      / wst_pr      - Show your personal record on this map
+[Console] !cp      / wst_cp      - Save your current position
+[Console] !tele    / wst_tele    - Teleport to your saved position (stops your timer)
+[Console] !spec    / wst_spec    - Go to spectator team
+[Console] !hidehud / wst_hidehud - Hide the hud
+[Console] !showhud / wst_showhud - Show the hud
+[Console] !getpos  / wst_getpos  - Shows your current x, y, z location (for zoning maps)
+[Console] !help    / wst_help    - Shows the help menu
+```
 
 
 ## Installation
