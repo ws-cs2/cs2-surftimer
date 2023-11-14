@@ -30,6 +30,7 @@ A experimental simple surf timer using the depricated Lua [VScript API](https://
  - [TLS] 24/7 Surf Utopia - `139.177.152.6:27015`
  - CHILL.LV《 Surf Timer 》 # EU North - `89.201.4.164:27018`
  - FrozenWave | CS2 Surf - `frozen-wave.com:27015`
+ - FR - Cs2serv - Surf #1 - `csgo.ac:27015`
 
 ## Discord
 
