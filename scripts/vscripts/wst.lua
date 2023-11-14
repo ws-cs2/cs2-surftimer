@@ -70,6 +70,11 @@ function CreateStartZone(v1, v2)
             return
         end
 
+        -- Not in prac when they enter the start zone
+        if player.prac == true then
+            player.prac = false
+        end
+
         player.timer = nil
         player.is_in_start_zone = true
     end
@@ -89,6 +94,11 @@ function CreateEndZone(idx, v1, v2)
     local OnStartTouch = function(a, b)
         local player = b.activator
         if player:IsAlive() == false then
+            return
+        end
+
+        if player.prac == true then
+            SendTextToClientChat(player, "Finished in practice mode with a time of " .. FormatTime(Time() - player.timer) .. "!")
             return
         end
 
@@ -156,9 +166,8 @@ function CreateEndZone(idx, v1, v2)
                     FireGameEvent("round_start", nil)
                 end, "clear_win_panel")
             end
-
-            player.timer = nil
         end
+        player.timer = nil
     end
     local OnEndTouch = function(a, b)
         local player = b.activator
@@ -292,16 +301,19 @@ function CommandCp(player, SendText)
     player.cp_origin = player:GetAbsOrigin()
     player.cp_angles = player:EyeAngles()
     player.cp_velocity = player:GetVelocity()
+    player.cp_time_diff = Time()
     SendText(player, "Saved your current position! Use !tele to teleport back to it.")
 end
 
 -- !tele
 function CommandTele(player, SendText)
     if player.cp_saved then
-        player.timer = nil
         player:SetAbsOrigin(player.cp_origin)
         player:SetAngles(player.cp_angles.x, player.cp_angles.y, player.cp_angles.z)
         player:SetVelocity(player.cp_velocity)
+        player.prac = true
+        player.timer = player.cp_time_diff
+        player.cp_time_diff = Time()
     else
         SendText(player, "You have not saved a position yet!")
     end

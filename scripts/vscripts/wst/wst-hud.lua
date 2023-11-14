@@ -31,14 +31,22 @@ local function getTimeHtml(player)
     local color = "#F24E4E" -- Default red for negative condition
     local timeValue = 0
 
+    local message = "Time"
+
     if player.timer then
-        color = "#2E9F65" -- Green for running timer
+        if player.prac then
+            color = "#7882dd" -- Blue for prac timer
+            message = "Prac"
+        else 
+            color = "#2E9F65" -- Green for running timer
+
+        end
         timeValue = Time() - player.timer
     elseif player.is_in_start_zone then
         color = "#F2D94E" -- Yellow for start zone
     end
 
-    return formatHtml(color, "Time", FormatTime(timeValue), 'fontSize-l')
+    return formatHtml(color, message, FormatTime(timeValue), 'fontSize-l')
 end
 
 function BuildPlayerHudHtml(player, speed)
