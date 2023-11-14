@@ -58,7 +58,6 @@ function SendTextToClientConsole(player, text)
 end
 
 function SendTextToClientChat(player, text)
-    DebugPrintPlayer(player)
     local slot = UserIdToSlot(player.user_id)
     -- I don't like prefixing with [wst] but I can't figured out colored text for client chat and otherwise it gets lost
     SendToServerConsole("wst_mm_chat " .. slot .. " " .. "\"[WST] " .. text .. "\"")
