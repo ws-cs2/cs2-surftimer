@@ -30,6 +30,14 @@ function SurfCVars()
     SendToServerConsole("sv_staminajumpcost 0")
     SendToServerConsole("sv_staminalandcost 0")
 
+    -- chat commands
+    SendToServerConsole("sv_full_alltalk 1")
+    SendToServerConsole("sv_alltalk 1")
+    SendToServerConsole("sv_allchat 1")
+
+    -- Allow time for the cs2 vote map thing
+    SendToServerConsole("mp_round_restart_delay 15")
+
     SendToServerConsole("mp_roundtime 30")
     SendToServerConsole("mp_roundtime_defuse 30")
     SendToServerConsole("mp_roundtime_hostage 30")
