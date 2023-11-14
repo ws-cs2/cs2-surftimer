@@ -34,6 +34,7 @@ function SurfCVars()
     SendToServerConsole("sv_full_alltalk 1")
     SendToServerConsole("sv_alltalk 1")
     SendToServerConsole("sv_allchat 1")
+    SendToServerConsole("sv_spec_hear 1")
 
     -- Allow time for the cs2 vote map thing
     SendToServerConsole("mp_round_restart_delay 15")
