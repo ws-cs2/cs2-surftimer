@@ -14,7 +14,7 @@ require("wst/wst-hud")
 require("wst/wst-timers")
 
 print("--------------------")
-print("Will's Surf Timer " .. CURRENT_VERSION)
+print("Will's SurfTimer " .. CURRENT_VERSION)
 print("--------------------")
 local CURRENT_MAP = GetMapName()
 print("Map: " .. CURRENT_MAP)
@@ -241,7 +241,7 @@ end
 
 -- !version
 function CommandVersion(player, SendText)
-    SendText(player, "Will's Surf Timer " .. CURRENT_VERSION)
+    SendText(player, "Will's SurfTimer " .. CURRENT_VERSION)
 end
 
 -- !getpos
@@ -325,7 +325,7 @@ function CommandShowHud(player, SendText)
 end
 
 function CommandChatHelp(player, SendText)
-    SendText(player, "Will\'s Surf Timer Commands")
+    SendText(player, "Will\'s SurfTimer Commands")
     SendText(player, "Type !r to teleport to the start zone (bind t wst_r)")
     SendText(player, "Type !wr to see the server record")
     SendText(player, "Type !top to see the top 10 players on this map")
@@ -445,7 +445,7 @@ LoadZones(zones)
 
 Convars:RegisterCommand("wst_help", function()
     local player = Convars:GetCommandClient()
-    local text = "Will's Surf Timer"
+    local text = "Will's SurfTimer"
     local border = string.rep("-", string.len(text) + 4)
     local middleLine = "| " .. text .. " |"
     SendTextToClientConsole(player, border)
@@ -588,7 +588,7 @@ function Activate()
 
     TimerOnce(1, function()
         ScriptPrintMessageChatAll(ConvertTextToColoredChatString(
-            "<GREEN>Will's Surf Timer <GOLD>loaded"))
+            "<GREEN>Will's SurfTimer <GOLD>loaded"))
         ServerMessageHelp()
     end, "activation_msg")
     print("[WST] Activate.end")
@@ -663,8 +663,8 @@ end, nil)
 
 function ServerMessageHelp()
     ScriptPrintMessageChatAll(ConvertTextToColoredChatString(
-        "<GOLD>Type <GREEN>!help<GOLD> in chat for <GREEN>Will's surf timer<GOLD> commands"))
-    return 60
+        "<GOLD>Type <GREEN>!help<GOLD> in chat for <GREEN>Will's SurfTimer<GOLD> commands"))
+    return 90
 end
 
 function ServerMessageTop()
@@ -673,7 +673,7 @@ function ServerMessageTop()
         ScriptPrintMessageChatAll(ConvertTextToColoredChatString(
             "<GOLD>Server record <GREEN>" .. FormatTime(wrTime.time) .. "<GOLD> by <GREEN>" .. wrTime.name))
     end
-    return 60
+    return 90
 end
 
 function CreateServerMessageTimer()
