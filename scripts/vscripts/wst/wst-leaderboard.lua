@@ -49,7 +49,7 @@ TIER_COLORS = {
 
 
 function determinePlayerTier(position, total_players)
-    local percentile = position / total_players
+    local percentile = 1 - (position / total_players)
     for _, tier_info in ipairs(TIER_THRESHOLDS) do
         if percentile >= tier_info.percentile then
             return tier_info.tier
@@ -57,7 +57,6 @@ function determinePlayerTier(position, total_players)
     end
     return "Unknown"
 end
-
 
 function sortLeaderboard()
     table.sort(leaderboard, function(a, b) return tonumber(a.time) < tonumber(b.time) end)
