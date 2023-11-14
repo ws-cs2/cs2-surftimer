@@ -99,9 +99,14 @@ function CreateEndZone(idx, v1, v2)
 
             local time = Time() - player.timer
             updateLeaderboard(player, time)
-            local position, total_players = getPlayerPosition(player.steam_id)
+            local position, total_players, _, tier = getPlayerPosition(player.steam_id)
 
-            local playerFinishMapMessage = "<GOLD>" .. player.name .. " <WHITE>finished in <GOLD>" .. FormatTime(time)
+
+            local tierColor = TIER_COLORS[tier]
+            local tierString = " [" .. tierColor .. tier .. "<WHITE>]"
+
+            local playerFinishMapMessage = "<GOLD>" ..
+            player.name .. " <WHITE>finished in <GOLD>" .. FormatTime(time)
             local wrDiffString = ""
             if wr ~= nil then
                 local wrDiff = time - wr
@@ -115,7 +120,7 @@ function CreateEndZone(idx, v1, v2)
 
             if previousPosition == nil then
                 local newPlayerMessage = "<GOLD>" ..
-                    player.name .. " <WHITE>is now rank <GOLD>" .. position .. "/" .. total_players
+                    player.name .. " <WHITE>is now rank <GOLD>" .. position .. "/" .. total_players .. tierString
                 ScriptPrintMessageChatAll(ConvertTextToColoredChatString(newPlayerMessage))
             elseif time < previousTime then
                 local improvementTime = previousTime - time
@@ -123,13 +128,15 @@ function CreateEndZone(idx, v1, v2)
                 local improvedPlayerMessage = "<GOLD>" ..
                     player.name ..
                     " <WHITE>improved with [<GREEN>-" ..
-                    FormatTime(improvementTime) .. "<WHITE>] Rank <GOLD>" .. position .. "/" .. total_players
+                    FormatTime(improvementTime) ..
+                    "<WHITE>] Rank <GOLD>" .. position .. "/" .. total_players .. tierString
                 ScriptPrintMessageChatAll(ConvertTextToColoredChatString(improvedPlayerMessage))
             else
                 local worsePlayerMessage = "<GOLD>" ..
                     player.name ..
                     " <WHITE>missed their best time by [<RED>+" ..
-                    FormatTime(time - previousTime) .. "<WHITE>] Rank <GOLD>" .. position .. "/" .. total_players
+                    FormatTime(time - previousTime) ..
+                    "<WHITE>] Rank <GOLD>" .. position .. "/" .. total_players .. tierString
                 ScriptPrintMessageChatAll(ConvertTextToColoredChatString(worsePlayerMessage))
             end
 

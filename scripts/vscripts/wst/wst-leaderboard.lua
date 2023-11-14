@@ -26,6 +26,39 @@ else
     print('Leaderboard not found, creating new one')
 end
 
+local TIER_THRESHOLDS = {
+    { tier = "Elite", percentile = 0.98, min_players = 10 },
+    { tier = "Diamond", percentile = 0.95, min_players = 0 },
+    { tier = "Platinum", percentile = 0.85, min_players = 0 },
+    { tier = "Gold", percentile = 0.70, min_players = 0 },
+    { tier = "Silver", percentile = 0.40, min_players = 0 },
+    { tier = "Bronze", percentile = 0.0, min_players = 0 }
+}
+
+
+
+TIER_COLORS = {
+    ["Elite"] = "<DARKPURPLE>",
+    ["Diamond"] = "<DARKBLUE>",
+    ["Platinum"] = "<BLUE>",
+    ["Gold"] = "<YELLOW>",
+    ["Silver"] = "<DARKGREY>",
+    ["Bronze"] = "<LIGHTGREEN>",
+    ["Unknown"] = "<DARKBLUE>"
+}     
+
+
+function determinePlayerTier(position, total_players)
+    local percentile = position / total_players
+    for _, tier_info in ipairs(TIER_THRESHOLDS) do
+        if percentile >= tier_info.percentile then
+            return tier_info.tier
+        end
+    end
+    return "Unknown"
+end
+
+
 function sortLeaderboard()
     table.sort(leaderboard, function(a, b) return tonumber(a.time) < tonumber(b.time) end)
 end
@@ -78,10 +111,11 @@ function getPlayerPosition(steam_id)
 
     for pos, player in ipairs(leaderboard) do
         if player.steam_id == steam_id then
-            return pos, total_players, player.time
+            local tier = determinePlayerTier(pos, total_players)
+            return pos, total_players, player.time, tier
         end
     end
-    return nil, total_players, nil -- player not found
+    return nil, total_players, nil, nil -- player not found
 end
 
 function tablelength(T)
