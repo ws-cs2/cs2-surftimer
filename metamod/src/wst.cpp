@@ -319,6 +319,9 @@ bool WSTPlugin::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, boo
     ClientPrintFn = (ClientPrint)Framework::ServerModule().FindSignature(R"(\x55\x48\x89\xE5\x41\x57\x49\x89\xCF\x41\x56\x49\x89\xD6\x41\x55\x41\x89\xF5\x41\x54\x4C\x8D\xA5\xA0\xFE\xFF\xFF)");
 #endif
 
+    // Project stops linking when I try remove funchook I honestly cant figure it out rn
+    config.detourHostSay = false;
+
     if (config.detourHostSay) {
         Message("Detouring HostSay\n");
         Message("If you are using MetaMod plugins such as CounterStrikeSharp/CS2Fixes, there is a good chance this will break them\n");
