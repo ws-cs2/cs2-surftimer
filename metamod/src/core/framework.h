@@ -43,6 +43,11 @@ public:
         return wst_GameEventManager;
     }
 
+    static IGameResourceServiceServer *& GameResourceService() {
+        static IGameResourceServiceServer* wst_GameResourceService = nullptr;
+        return wst_GameResourceService;
+    }
+
     // ServerCModule
     static CModule ServerModule() {
         static CModule wst_ServerCModule(GAMEBIN, "server");
