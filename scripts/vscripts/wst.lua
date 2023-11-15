@@ -84,8 +84,17 @@ function CreateStartZone(v1, v2)
             return
         end
 
+        local speed = player:GetVelocity():Length2D()
+
+        -- Fix if hud starts breaking and stops ticking
+        if speed > START_ZONE_SPEED_CAP_XY then
+            TeleportToStartZone(player)
+            return
+        end
+
+        
         player.timer = Time()
-        player.is_in_start_zone = false
+        player.is_in_start_zone = false 
     end
     CreateZone("wst_trigger_startzone", v1, v2, 0, 230, 0, 10, OnStartTouch, OnEndTouch)
 end
@@ -534,7 +543,6 @@ end
 function PlayerTick(player)
     local velocity = player:GetVelocity()
     local speed = velocity:Length2D()
-    local location = player:GetAbsOrigin()
 
     if player:IsAlive() == false then
         player.timer = nil
