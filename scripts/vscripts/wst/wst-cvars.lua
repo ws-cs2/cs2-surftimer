@@ -39,6 +39,7 @@ function SurfCVars()
     -- Allow time for the cs2 vote map thing
     SendToServerConsole("mp_round_restart_delay 15")
 
+    SendToServerConsole("mp_friendlyfire 0")
     SendToServerConsole("mp_roundtime 30")
     SendToServerConsole("mp_roundtime_defuse 30")
     SendToServerConsole("mp_roundtime_hostage 30")
