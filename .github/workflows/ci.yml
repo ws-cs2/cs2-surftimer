@@ -56,7 +56,7 @@ jobs:
         working-directory: metamod
         run: |
           mkdir -p build && cd build
-          python ../configure.py --enable-optimize --symbol-files --sdks cs2
+          python ../configure.py --sdks cs2
           ambuild
 
       - name: Upload artifact
