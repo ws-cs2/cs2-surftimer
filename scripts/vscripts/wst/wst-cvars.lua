@@ -36,6 +36,11 @@ function SurfCVars()
     SendToServerConsole("sv_allchat 1")
     SendToServerConsole("sv_spec_hear 1")
 
+    -- cs2fixes
+    SendToServerConsole("cs2f_hide_enable 1")
+    SendToServerConsole("cs2f_use_old_push 1")
+    SendToServerConsole("cs2f_noblock_enable  1")
+
     -- Allow time for the cs2 vote map thing
     SendToServerConsole("mp_round_restart_delay 15")
 
