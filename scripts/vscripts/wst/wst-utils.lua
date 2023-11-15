@@ -58,3 +58,21 @@ function TimerOnce(delay, callback, id)
         delay
     )
 end
+
+function GetPlayerByUserId(userId)
+    local playerSlot = UserIdToSlot(userId)
+
+    local chatPlayer = nil
+    local players = Entities:FindAllByClassname("player")
+    for i, player in ipairs(players)
+    do
+        if UserIdToSlot(player.user_id) == playerSlot then
+            chatPlayer = players[i]
+            break
+        end
+    end
+    if (chatPlayer == nil) then
+        return nil
+    end
+    return chatPlayer
+end

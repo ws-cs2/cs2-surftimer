@@ -649,20 +649,7 @@ ListenToGameEvent("player_chat", function(event)
     -- This will majorly screw chat commands
 
     print("PLAYER_CHAT [userid]: " .. event.userid)
-    local playerSlot = UserIdToSlot(event.userid)
-
-    local chatPlayer = nil
-    local players = Entities:FindAllByClassname("player")
-    for i, player in ipairs(players)
-    do
-        if UserIdToSlot(player.user_id) == playerSlot then
-            chatPlayer = players[i]
-            break
-        end
-    end
-    if (chatPlayer == nil) then
-        return
-    end
+    local chatPlayer = GetPlayerByUserId(event.userid)
 
     for name, cmd in pairs(WST_COMMANDS) do
         if event.text == "!" .. name or event.text == "/" .. name then
