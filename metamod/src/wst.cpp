@@ -375,7 +375,7 @@ const char *WSTPlugin::GetLicense() {
 }
 
 const char *WSTPlugin::GetVersion() {
-    return "1.2.0";
+    return "1.3.0";
 }
 
 const char *WSTPlugin::GetDate() {
