@@ -15,6 +15,7 @@
 #include "core/virtual.h"
 #include "core/cbaseentity.h"
 #include "autoupdater.h"
+#include "entitysystem.h"
 
 #include <steam/steam_gameserver.h>
 #include <irecipientfilter.h>
@@ -161,31 +162,23 @@ CON_COMMAND_F(wst_mm_save_record, "Save a record to disk", FCVAR_GAMEDLL | FCVAR
     }
 }
 
-class CSingleRecipientFilter : public IRecipientFilter
+typedef void (*ClientPrint)(CBaseEntity *, int , const char *, ...);
+static ClientPrint ClientPrintFn = nullptr;
+
+CEntitySystem *GetEntitySystem()
 {
-public:
-    CSingleRecipientFilter(int iRecipient, bool bReliable = true, bool bInitMessage = false) :
-            m_iRecipient(iRecipient), m_bReliable(bReliable), m_bInitMessage(bInitMessage) {}
+#ifdef WIN32
+    static int offset = 88;
+#else
+    static int offset = 80;
+#endif
+    return *reinterpret_cast<CGameEntitySystem**>((uintptr_t)(Framework::GameResourceService()) + offset);
+}
 
-    ~CSingleRecipientFilter() override {}
-
-    bool IsReliable(void) const override { return m_bReliable; }
-
-    bool IsInitMessage(void) const override { return m_bInitMessage; }
-
-    int GetRecipientCount(void) const override { return 1; }
-
-    CPlayerSlot GetRecipientIndex(int slot) const override { return CPlayerSlot(m_iRecipient); }
-
-private:
-    bool m_bReliable;
-    bool m_bInitMessage;
-    int m_iRecipient;
-};
-
-//void UTIL_SayTextFilter( IRecipientFilter& filter, const char *pText, CBasePlayer *pPlayer, bool bChat )
-typedef void (*UTIL_SayTextFilter)(IRecipientFilter &, const char *, CBaseEntity *, bool);
-static UTIL_SayTextFilter UTIL_SayTextFilterFn = nullptr;
+#define HUD_PRINTNOTIFY		1
+#define HUD_PRINTCONSOLE	2
+#define HUD_PRINTTALK		3
+#define HUD_PRINTCENTER		4
 
 
 void SendChatToClient(int index, const char *msg, ...)
@@ -195,8 +188,16 @@ void SendChatToClient(int index, const char *msg, ...)
     char buf[256];
     V_vsnprintf(buf, sizeof(buf), msg, args);
 
-    CSingleRecipientFilter filter(index);
-    UTIL_SayTextFilterFn(filter, buf, nullptr, 0);
+    CEntitySystem* system = GetEntitySystem();
+    if (!system)
+        return;
+
+    CBaseEntity* player = system->GetBaseEntity(CEntityIndex(index + 1));
+
+    if (!player)
+        return;
+
+    ClientPrintFn(player, HUD_PRINTTALK, buf);
 }
 
 CON_COMMAND_F(wst_mm_chat, "Chat to client", FCVAR_GAMEDLL | FCVAR_HIDDEN) {
@@ -297,6 +298,7 @@ bool WSTPlugin::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, boo
                     NETWORKSERVERSERVICE_INTERFACE_VERSION);
     GET_V_IFACE_ANY(GetServerFactory, Framework::Source2Server(), ISource2Server, SOURCE2SERVER_INTERFACE_VERSION);
     GET_V_IFACE_CURRENT(GetEngineFactory, Framework::EngineServer(), IVEngineServer2, INTERFACEVERSION_VENGINESERVER);
+    GET_V_IFACE_CURRENT(GetEngineFactory, Framework::GameResourceService(), IGameResourceServiceServer, GAMERESOURCESERVICESERVER_INTERFACE_VERSION);
 
     Framework::GameEventManager() = (IGameEventManager2 *) (CALL_VIRTUAL(uintptr_t, 91, Framework::Source2Server()) -
                                                             8);
@@ -311,10 +313,10 @@ bool WSTPlugin::Load(PluginId id, ISmmAPI *ismm, char *error, size_t maxlen, boo
 
     // please do not break other metamod plugins :pray: :pray: :pray:
 #ifdef _WIN32
-    UTIL_SayTextFilterFn = (UTIL_SayTextFilter) Framework::ServerModule().FindSignature(
-            R"(\x48\x89\x5C\x24\x2A\x55\x56\x57\x48\x8D\x6C\x24\x2A\x48\x81\xEC\x2A\x2A\x2A\x2A\x49\x8B\xD8)");
+    ClientPrintFn = (ClientPrint) Framework::ServerModule().FindSignature(
+            R"(\x48\x85\xC9\x0F\x84\x2A\x2A\x2A\x2A\x48\x8B\xC4\x48\x89\x58\x18)");
 #else
-    UTIL_SayTextFilterFn = (UTIL_SayTextFilter)Framework::ServerModule().FindSignature(R"(\x55\x48\x89\xE5\x41\x57\x49\x89\xD7\x31\xD2\x41\x56\x4C\x8D\x75\x98)");
+    ClientPrintFn = (ClientPrint)Framework::ServerModule().FindSignature(R"(\x55\x48\x89\xE5\x41\x57\x49\x89\xCF\x41\x56\x49\x89\xD6\x41\x55\x41\x89\xF5\x41\x54\x4C\x8D\xA5\xA0\xFE\xFF\xFF)");
 #endif
 
     if (config.detourHostSay) {
