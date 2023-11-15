@@ -197,7 +197,7 @@ void SendChatToClient(int index, const char *msg, ...)
     if (!player)
         return;
 
-    ClientPrintFn(player, HUD_PRINTTALK, buf);
+    ClientPrintFn(player, HUD_PRINTTALK, buf, nullptr, nullptr, nullptr, nullptr);
 }
 
 CON_COMMAND_F(wst_mm_chat, "Chat to client", FCVAR_GAMEDLL | FCVAR_HIDDEN) {
