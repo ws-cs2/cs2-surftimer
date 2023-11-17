@@ -56,9 +56,9 @@ Need help, interested in running a dedicated server or want to make some improvm
 
 ## Installation
 
-First will first need to [install Metamod](https://www.sourcemm.net/downloads.php?branch=dev). 
+First will first need to [install Metamod]([https://www.sourcemm.net/downloads.php?branch=dev](https://cs2.poggu.me/metamod/installation/)). 
 
-Then install [Will's SurfTimer Metamod Plugin](https://github.com/ws-cs2/cs2-surftimer/releases/),  [Lua Unlocker](https://github.com/Source2ZE/LuaUnlocker) and optionally [Movement Unlocker](https://github.com/Source2ZE/MovementUnlocker).
+Then install [Will's SurfTimer Metamod Plugin](https://github.com/ws-cs2/cs2-surftimer/releases/) and [CS2Fixes](https://github.com/Source2ZE/CS2Fixes/releases/)
 
 The first time you run the server run the following commands in your server console
 ```
