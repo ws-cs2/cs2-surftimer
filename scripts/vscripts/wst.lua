@@ -356,6 +356,17 @@ function CommandChatHelp(player, SendText)
     SendText(player, "Type wst_help in console for more commands")
 end
 
+function CommandLegs(player, SendText)
+    local alpha = player:GetRenderAlpha()
+    SendText(player, "" .. alpha)
+    if alpha == 254 then
+        player:SetRenderAlpha(255)
+    else
+        player:SetRenderAlpha(254)
+    end
+    SendText(player, "Legs toggled")
+end
+
 WST_COMMANDS = {
     ["version"] = {
         console = CommandVersion,
@@ -402,6 +413,11 @@ WST_COMMANDS = {
         chat = CommandTele,
         help = "Teleport to your saved position (stops your timer)"
     },
+    ["legs"] = {
+        console = CommandLegs,
+        chat = CommandLegs,
+        help = "Toggle your legs"
+    },
     ["spec"] = {
         console = CommandSpec,
         chat = CommandSpec,
@@ -435,6 +451,7 @@ WST_COMMAND_ORDER = {
     "cp",
     "tele",
     "spec",
+    "legs",
     "hidehud",
     "showhud",
     --    "version",
@@ -636,7 +653,12 @@ ListenToGameEvent("player_spawn", function(event)
     -- end
 
     local user = EHandleToHScript(event.userid_pawn)
+    if user == nil then
+        print("player_spawn, user is nil")
+        return
+    end
     user.user_id = event.userid
+    user:SetRenderAlpha(254)
 
     if player_connect ~= nil then
         user.steam_id = player_connect.networkid
