@@ -17,7 +17,7 @@ A experimental simple surf timer using the depricated Lua [VScript API](https://
  - FutureGN Surf - `139.99.145.57:27019`
  - [KZG | CS2 Surf](https://join.kzg.gg/cs2-surf) - `103.212.224.45:27085`
  - [GFLCan.com] CS2 Surf Beginner- BETA - `92.119.148.31:27015`
- - sk8 | EZ SURF - TIMER & RANKS - `101.100.143.138:27085`
+ - CBGaming.Pro | Surf - Timer - Ranks - `101.100.143.138:27085`
  - Surf UTOPIA [ded-community.de] - `128.140.106.242:27021`
  - Surf UTOPIA (US) [ded-community.de] - `5.161.92.40:27015`
  - Surf UTOPIA (US#2) [ded-community.de] - `5.161.216.93:27015`
@@ -31,6 +31,7 @@ A experimental simple surf timer using the depricated Lua [VScript API](https://
  - CHILL.LV《 Surf Timer 》 # EU North - `89.201.4.164:27018`
  - FrozenWave | CS2 Surf - `frozen-wave.com:27015`
  - FR - Cs2serv - Surf #1 - `csgo.ac:27015`
+ - [IG] 24/7 Surf | Imperfect Gamers | Rap Battles | Beta - `74.91.112.155:27015`
 
 ## Discord
 
