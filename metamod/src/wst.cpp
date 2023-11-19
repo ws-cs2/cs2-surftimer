@@ -9,6 +9,8 @@
 #include <funchook.h>
 
 #include <filesystem>
+#include <algorithm>
+
 #include "core/whereami.h"
 #include "core/framework.h"
 #include "core/module.h"
@@ -161,6 +163,74 @@ CON_COMMAND_F(wst_mm_save_record, "Save a record to disk", FCVAR_GAMEDLL | FCVAR
                 player_name, map_name, time, existingTimeStr);
     }
 }
+
+CON_COMMAND_F(wst_mm_delete_top_records, "Delete the top N records for a map", FCVAR_GAMEDLL | FCVAR_HIDDEN) {
+    // wst_mm_delete_top_record <map_name> <number of records to delete>
+    // wst_mm_delete_top_record surf_beginner 5
+    if (args.ArgC() != 3) {
+        Message("Usage: wst_mm_delete_top_record <map_name> <number of records to delete>\n");
+        // print args
+        for (int i = 0; i < args.ArgC(); i++) {
+            Message("Arg %d: [%s]\n", i, args.Arg(i));
+        }
+        return;
+    }
+
+    const char *map_name = args.Arg(1);
+    int numRecordsToDelete = atoi(args.Arg(2));
+
+    // Load or initialize our KeyValuesW
+    KeyValues *kv = new KeyValues(map_name);
+    KeyValues::AutoDelete autoDelete(kv); // Ensure automatic deletion on scope exit
+
+    char filePath[512];
+    Q_snprintf(filePath, sizeof(filePath), "scripts/wst_records/%s.txt", map_name);
+
+    KeyValues *data;
+    if (kv->LoadFromFile(Framework::FileSystem(), filePath, "MOD")) {
+        // Find the data subkey
+        data = kv->FindKey("data", true);
+    } else {
+        Message("No records found for %s\n", map_name);
+        return;
+    }
+
+    // Sort the records by time
+    std::vector<std::pair<std::string, float>> records;
+
+    for (KeyValues *sub = data->GetFirstSubKey(); sub != nullptr; sub = sub->GetNextKey()) {
+        const char *steam_id = sub->GetName();
+        float time = sub->GetFloat("time", 0);
+        records.emplace_back(steam_id, time);
+    }
+    if (records.empty()) {
+        Message("No records found for %s\n", map_name);
+        return;
+    }
+
+    if (numRecordsToDelete > records.size()) {
+        Message("There are only %d records for %s\n", records.size(), map_name);
+        return;
+    }
+
+    std::sort(records.begin(), records.end(), [](const auto &left, const auto &right) {
+        return left.second < right.second;
+    });
+
+    // Delete the top N records
+    for (int i = 0; i < numRecordsToDelete; i++) {
+        const auto &record = records[i];
+        data->FindAndDeleteSubKey(record.first.c_str());
+        Message("Deleted record for %s on %s [%f]\n", record.first.c_str(), map_name, record.second);
+    }
+
+    if (kv->SaveToFile(Framework::FileSystem(), filePath, "MOD")) {
+        Message("Records saved successfully for %s\n", map_name);
+    } else {
+        Message("Failed to save records for %s\n", map_name);
+    }
+}
+
 
 typedef void (*ClientPrint)(CBaseEntity *, int , const char *, ...);
 static ClientPrint ClientPrintFn = nullptr;
@@ -375,7 +445,7 @@ const char *WSTPlugin::GetLicense() {
 }
 
 const char *WSTPlugin::GetVersion() {
-    return "1.3.0";
+    return "1.3.1";
 }
 
 const char *WSTPlugin::GetDate() {
