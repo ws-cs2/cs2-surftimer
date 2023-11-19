@@ -55,6 +55,14 @@ Need help, interested in running a dedicated server or want to make some improvm
 ```
 
 
+## Admin Commands
+
+```
+wst_mm_delete_top_records <mapname> <number_of_records> - Removes the top N records for a map (incase of glitched times), requires map reload to show in game
+wst_mm_update scripts - Updates Lua scripts
+wst_mm_update zones - Updates zones from github
+```
+
 ## Installation
 
 First will first need to [install Metamod](https://cs2.poggu.me/metamod/installation/). 
