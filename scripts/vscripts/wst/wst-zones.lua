@@ -17,11 +17,17 @@ Zone.__index = Zone
 function Zone.new(name)
     local self = setmetatable({}, Zone)
     self.name = name
+    self.trigger_hooked = false
     return self
 end
 
 function Zone:init(OnStartTouch, OnEndTouch)
     print("Zone:init " .. self.name)
+
+    if self.trigger_hooked then
+        print("Zone:init: already hooked")
+        return
+    end
 
     self.trigger = self:CreateOrFindTrigger()
     local scriptScope = self.trigger:GetOrCreatePublicScriptScope()
@@ -33,6 +39,7 @@ function Zone:init(OnStartTouch, OnEndTouch)
 
     self.center = self.trigger:GetAbsOrigin()
     print ("Zone:init: center = " .. tostring(self.center))
+    self.trigger_hooked = true
 end
 
 function Zone:CreateOrFindTrigger()
