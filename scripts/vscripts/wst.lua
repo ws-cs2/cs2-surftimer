@@ -517,6 +517,10 @@ for name, cmd in pairs(WST_COMMANDS) do
             local player = Convars:GetCommandClient()
             cmd.console(player, SendTextToClientConsole)
         end, nil, 0)
+        Convars:RegisterCommand("sm_" .. name, function(...)
+            local player = Convars:GetCommandClient()
+            cmd.console(player, SendTextToClientConsole)
+        end, nil, 0)
     end
 end
 
