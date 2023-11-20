@@ -5,11 +5,11 @@
     {
         "start"
         {
-            "targetname" "map_start"
+            "targetname" "1z"
         }
         "end"
         {
-            "targetname" "map_end"
+            "targetname" "endm"
         }
     }
 }

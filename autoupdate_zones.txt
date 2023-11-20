@@ -1,7 +1,10 @@
+scripts/wst_zones/surf_ace.txt
 scripts/wst_zones/surf_beginner.txt
+scripts/wst_zones/surf_deathstar.txt
 scripts/wst_zones/surf_kitsune.txt
 scripts/wst_zones/surf_kitsune_cs2.txt
 scripts/wst_zones/surf_mesa_revo.txt
 scripts/wst_zones/surf_rebel_resistance_cs2.txt
+scripts/wst_zones/surf_rookie.txt
 scripts/wst_zones/surf_utopia_njv.txt
 scripts/wst_zones/surf_void.txt

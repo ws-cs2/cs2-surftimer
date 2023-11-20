@@ -11,6 +11,21 @@ function EHandleToHScript(iPawnId)
     return EntIndexToHScript(EntityIndex(iPawnId))
 end
 
+function SplitVectorString(str)
+    -- split on comma
+    -- x y z
+    local split = {}
+    for s in string.gmatch(str, "([^,]+)") do
+        table.insert(split, s)
+    end
+    -- Convert to numbers
+    for i, s in ipairs(split) do
+        split[i] = tonumber(s)
+    end
+    -- Convert to vector
+    return Vector(split[1], split[2], split[3])
+end
+
 function CalculateBoxFromVectors(v1, v2)
     local mins = Vector(math.min(v1.x, v2.x), math.min(v1.y, v2.y), math.min(v1.z, v2.z))
     local maxs = Vector(math.max(v1.x, v2.x), math.max(v1.y, v2.y), math.max(v1.z, v2.z))

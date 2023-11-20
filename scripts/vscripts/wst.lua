@@ -12,6 +12,7 @@ require("wst/wst-debug")
 require("wst/wst-utils")
 require("wst/wst-hud")
 require("wst/wst-timers")
+require("wst/wst-zones")
 
 print("--------------------")
 print("Will's SurfTimer " .. CURRENT_VERSION)
@@ -28,21 +29,10 @@ print("Map: " .. CURRENT_MAP)
 -- host_workshop_map 3073875025
 
 
-local DRAW_ZONES = false
 local START_ZONE_SPEED_CAP_XY = 400
 
 local PLUGIN_ACTIVATED = false
 local WORLDENT = nil
-
-local START_ZONE_V1 = nil
-local START_ZONE_V2 = nil
-
--- Some maps have multiple endzones
-local END_ZONE_V1 = nil
-local END_ZONE_V2 = nil
-
-local END_ZONE_2_V1 = nil
-local END_ZONE_2_V2 = nil
 
 local PLAYER_CONNECT_TABLE = {}
 
@@ -63,199 +53,150 @@ function SendTextToClientChat(player, text)
     SendToServerConsole("wst_mm_chat " .. slot .. " " .. "\"[WST] " .. text .. "\"")
 end
 
-function CreateStartZone(v1, v2)
-    local OnStartTouch = function(a, b)
-        local player = b.activator
-        if player:IsAlive() == false then
-            return
-        end
-
-        -- Not in prac when they enter the start zone
-        if player.prac == true then
-            player.prac = false
-        end
-
-        player.timer = nil
-        player.is_in_start_zone = true
+function StartZone_OnStartTouch(a, b)
+    local player = b.activator
+    if player:IsAlive() == false then
+        return
     end
-    local OnEndTouch = function(a, b)
-        local player = b.activator
-        if player:IsAlive() == false then
-            return
-        end
 
-        local speed = player:GetVelocity():Length2D()
-
-        -- Fix if hud starts breaking and stops ticking
-        if speed > START_ZONE_SPEED_CAP_XY then
-            TeleportToStartZone(player)
-            return
-        end
-
-        
-        player.timer = Time()
-        player.is_in_start_zone = false 
+    -- Not in prac when they enter the start zone
+    if player.prac == true then
+        player.prac = false
     end
-    CreateZone("wst_trigger_startzone", v1, v2, 0, 230, 0, 10, OnStartTouch, OnEndTouch)
+
+    player.timer = nil
+    player.is_in_start_zone = true
 end
 
-function CreateEndZone(idx, v1, v2)
-    local OnStartTouch = function(a, b)
-        local player = b.activator
-        if player:IsAlive() == false then
-            return
-        end
-
-        if player.prac == true then
-            SendTextToClientChat(player, "Finished in practice mode with a time of " .. FormatTime(Time() - player.timer) .. "!")
-            return
-        end
-
-        if player.timer ~= nil then
-            local wr = getWorldRecordTime()
-
-            local previousPosition, _, previousTime = getPlayerPosition(player.steam_id)
-
-            local time = Time() - player.timer
-            updateLeaderboard(player, time)
-            local position, total_players, _, tier = getPlayerPosition(player.steam_id)
-
-
-            local tierColor = TIER_COLORS[tier]
-            local tierString = " [" .. tierColor .. tier .. "<WHITE>]"
-
-            local playerFinishMapMessage = "<GOLD>" ..
-            player.name .. " <WHITE>finished in <GOLD>" .. FormatTime(time)
-            local wrDiffString = ""
-            if wr ~= nil then
-                local wrDiff = time - wr
-                if wrDiff > 0 then
-                    wrDiffString = " <WHITE>[WR<RED> +" .. FormatTime(wrDiff) .. "<WHITE>]"
-                elseif wrDiff <= 0 then
-                    wrDiffString = " <WHITE>[WR<GREEN> -" .. FormatTime(wrDiff) .. "<WHITE>]"
-                end
-            end
-            ScriptPrintMessageChatAll(ConvertTextToColoredChatString(playerFinishMapMessage .. wrDiffString))
-
-            if previousPosition == nil then
-                local newPlayerMessage = "<GOLD>" ..
-                    player.name .. " <WHITE>is now rank <GOLD>" .. position .. "/" .. total_players .. tierString
-                ScriptPrintMessageChatAll(ConvertTextToColoredChatString(newPlayerMessage))
-            elseif time < previousTime then
-                local improvementTime = previousTime - time
-
-                local improvedPlayerMessage = "<GOLD>" ..
-                    player.name ..
-                    " <WHITE>improved with [<GREEN>-" ..
-                    FormatTime(improvementTime) ..
-                    "<WHITE>] Rank <GOLD>" .. position .. "/" .. total_players .. tierString
-                ScriptPrintMessageChatAll(ConvertTextToColoredChatString(improvedPlayerMessage))
-            else
-                local worsePlayerMessage = "<GOLD>" ..
-                    player.name ..
-                    " <WHITE>missed their best time by [<RED>+" ..
-                    FormatTime(time - previousTime) ..
-                    "<WHITE>] Rank <GOLD>" .. position .. "/" .. total_players .. tierString
-                ScriptPrintMessageChatAll(ConvertTextToColoredChatString(worsePlayerMessage))
-            end
-
-            local noPreviousRecords = wr == nil
-            local betPreviousWr = wr ~= nil and time < wr
-
-            if noPreviousRecords or betPreviousWr then
-                local newWRMessage = "<GOLD>" .. player.name .. " <WHITE>set a new <GOLD>WR <WHITE>with <GOLD>" ..
-                    FormatTime(time) .. "!"
-                ScriptPrintMessageChatAll(ConvertTextToColoredChatString(newWRMessage))
-
-                FireGameEvent("cs_win_panel_round", {
-                    ["funfact_token"] = "<font class='fontSize-xl' color='#5BEB60'>" ..
-                        player.name .. " </font><font class='fontSize-l'>just set a new server record!</font>",
-                })
-                TimerOnce(10, function()
-                    FireGameEvent("round_start", nil)
-                end, "clear_win_panel")
-            end
-        end
-        player.timer = nil
+function StartZone_OnEndTouch(a, b)
+    local player = b.activator
+    if player:IsAlive() == false then
+        return
     end
-    local OnEndTouch = function(a, b)
-        local player = b.activator
-        if player:IsAlive() == false then
-            return
-        end
 
-        player.timer = nil
+    local speed = player:GetVelocity():Length2D()
+
+    -- Fix if hud starts breaking and stops ticking
+    if speed > START_ZONE_SPEED_CAP_XY then
+        TeleportToStartZone(player)
+        return
     end
-    CreateZone("wst_trigger_endzone_" .. idx, v1, v2, 230, 0, 0, 10, OnStartTouch, OnEndTouch)
+
+
+    player.timer = Time()
+    player.is_in_start_zone = false
 end
 
-function CreateZone(name, v1, v2, r, g, b, a, OnStartTouch, OnEndTouch)
-    local existing = Entities:FindByName(nil, name)
-    if existing then
-        -- Kill trigger
-        existing:Kill()
+function EndZone_OnStartTouch(a, b)
+    local player = b.activator
+    if player:IsAlive() == false then
+        return
+    end
+    if player.timer == nil then
+        return
     end
 
-    local center, mins, maxs = CalculateBoxFromVectors(v1, v2)
+    local time = Time() - player.timer
+    player.timer = nil
 
-    local extents = CalculateExtentsFromMinsMaxs(mins, maxs)
-
-    ---@type CBaseTrigger
-    local trigger = SpawnEntityFromTableSynchronous("script_trigger_multiple", {
-        wait = 0,
-        targetname = name,
-        spawnflags = 257,
-        StartDisabled = false,
-        extent = extents
-    })
-    trigger:SetAbsOrigin(center)
-
-    if DRAW_ZONES then
-        trigger:SetContextThink(nil, function()
-            local secondsToDrawBox = 5
-            DebugDrawBox(center, mins, maxs, r, g, b, a, secondsToDrawBox)
-            return secondsToDrawBox
-        end, 0)
+    if player.prac == true then
+        SendTextToClientChat(player,
+            "Finished in practice mode with a time of " .. FormatTime(time) .. "!")
+        return
     end
 
-    local scriptScope = trigger:GetOrCreatePublicScriptScope()
+    -- TODO: Seperate leaderboard stuff from chat stuff
 
-    scriptScope.OnStartTouch = OnStartTouch
-    scriptScope.OnEndTouch = OnEndTouch
-    trigger:RedirectOutput("OnStartTouch", "OnStartTouch", trigger)
-    trigger:RedirectOutput("OnEndTouch", "OnEndTouch", trigger)
+    -- Leaderboard stuff
+    local wr = getWorldRecordTime()
+    local previousPosition, _, previousTime = getPlayerPosition(player.steam_id)
+    updateLeaderboard(player, time)
+    local position, total_players, _, tier = getPlayerPosition(player.steam_id)
+
+    -- Chat stuff 
+    local tierColor = TIER_COLORS[tier]
+    local tierString = " [" .. tierColor .. tier .. "<WHITE>]"
+
+    local playerFinishMapMessage = "<GOLD>" ..
+        player.name .. " <WHITE>finished in <GOLD>" .. FormatTime(time)
+    local wrDiffString = ""
+    if wr ~= nil then
+        local wrDiff = time - wr
+        if wrDiff > 0 then
+            wrDiffString = " <WHITE>[WR<RED> +" .. FormatTime(wrDiff) .. "<WHITE>]"
+        elseif wrDiff <= 0 then
+            wrDiffString = " <WHITE>[WR<GREEN> -" .. FormatTime(wrDiff) .. "<WHITE>]"
+        end
+    end
+    ScriptPrintMessageChatAll(ConvertTextToColoredChatString(playerFinishMapMessage .. wrDiffString))
+
+    if previousPosition == nil then
+        local newPlayerMessage = "<GOLD>" ..
+            player.name .. " <WHITE>is now rank <GOLD>" .. position .. "/" .. total_players .. tierString
+        ScriptPrintMessageChatAll(ConvertTextToColoredChatString(newPlayerMessage))
+    elseif time < previousTime then
+        local improvementTime = previousTime - time
+
+        local improvedPlayerMessage = "<GOLD>" ..
+            player.name ..
+            " <WHITE>improved with [<GREEN>-" ..
+            FormatTime(improvementTime) ..
+            "<WHITE>] Rank <GOLD>" .. position .. "/" .. total_players .. tierString
+        ScriptPrintMessageChatAll(ConvertTextToColoredChatString(improvedPlayerMessage))
+    else
+        local worsePlayerMessage = "<GOLD>" ..
+            player.name ..
+            " <WHITE>missed their best time by [<RED>+" ..
+            FormatTime(time - previousTime) ..
+            "<WHITE>] Rank <GOLD>" .. position .. "/" .. total_players .. tierString
+        ScriptPrintMessageChatAll(ConvertTextToColoredChatString(worsePlayerMessage))
+    end
+
+    local noPreviousRecords = wr == nil
+    local betPreviousWr = wr ~= nil and time < wr
+
+    if noPreviousRecords or betPreviousWr then
+        local newWRMessage = "<GOLD>" .. player.name .. " <WHITE>set a new <GOLD>WR <WHITE>with <GOLD>" ..
+            FormatTime(time) .. "!"
+        ScriptPrintMessageChatAll(ConvertTextToColoredChatString(newWRMessage))
+
+        FireGameEvent("cs_win_panel_round", {
+            ["funfact_token"] = "<font class='fontSize-xl' color='#5BEB60'>" ..
+                player.name .. " </font><font class='fontSize-l'>just set a new server record!</font>",
+        })
+        TimerOnce(10, function()
+            FireGameEvent("round_start", nil)
+        end, "clear_win_panel")
+    end
 end
 
-function SplitVectorString(str)
-    -- split on comma
-    -- x y z
-    local split = {}
-    for s in string.gmatch(str, "([^,]+)") do
-        table.insert(split, s)
+function EndZone_OnEndTouch(a, b)
+    local player = b.activator
+    if player:IsAlive() == false then
+        return
     end
-    -- Convert to numbers
-    for i, s in ipairs(split) do
-        split[i] = tonumber(s)
-    end
-    -- Convert to vector
-    return Vector(split[1], split[2], split[3])
+
+    player.timer = nil
 end
 
 function LoadZones(zone_file_table)
     print("Zones loaded from disk")
     print("Zones Version: ", zone_file_table.version)
-    START_ZONE_V1 = SplitVectorString(zone_file_table.data.start.v1)
-    START_ZONE_V2 = SplitVectorString(zone_file_table.data.start.v2)
-
-    END_ZONE_V1 = SplitVectorString(zone_file_table.data['end'].v1)
-    END_ZONE_V2 = SplitVectorString(zone_file_table.data['end'].v2)
-
-    -- Support multi endzone.
+    START_ZONE = CreateZoneFromFile('start', zone_file_table.data.start)
+    END_ZONE = CreateZoneFromFile('end', zone_file_table.data['end'])
     if zone_file_table.data['end2'] ~= nil then
-        END_ZONE_2_V1 = SplitVectorString(zone_file_table.data['end2'].v1)
-        END_ZONE_2_V2 = SplitVectorString(zone_file_table.data['end2'].v2)
+        END_ZONE_2 = CreateZoneFromFile('end2', zone_file_table.data['end2'])
     end
 end
+
+-- local zones = LoadKeyValues('scripts/wst_zones/surf_beginner_debug.txt')
+local zones = LoadKeyValues('scripts/wst_zones/' .. CURRENT_MAP .. '.txt')
+if zones == nil then
+    print("Failed to load WST, there is no zone file for this map: " .. CURRENT_MAP)
+    return
+end
+
+LoadZones(zones)
 
 -- !version
 function CommandVersion(player, SendText)
@@ -307,6 +248,7 @@ end
 -- !cp
 function CommandCp(player, SendText)
     player.cp_saved = true
+    player.og_start = player.timer
     player.cp_origin = player:GetAbsOrigin()
     player.cp_angles = player:EyeAngles()
     player.cp_velocity = player:GetVelocity()
@@ -321,8 +263,7 @@ function CommandTele(player, SendText)
         player:SetAngles(player.cp_angles.x, player.cp_angles.y, player.cp_angles.z)
         player:SetVelocity(player.cp_velocity)
         player.prac = true
-        player.timer = player.cp_time_diff
-        player.cp_time_diff = Time()
+        player.timer = Time() - (player.cp_time_diff - player.og_start)
     else
         SendText(player, "You have not saved a position yet!")
     end
@@ -469,18 +410,6 @@ function GetLongestCommandNameLength()
     return longest
 end
 
--- do help seperately since it needs to reference the command list
-
-
--- local zones = LoadKeyValues('scripts/wst_zones/surf_beginner_debug.txt')
-local zones = LoadKeyValues('scripts/wst_zones/' .. CURRENT_MAP .. '.txt')
-if zones == nil then
-    print("Failed to load WST, there is no zone file for this map: " .. CURRENT_MAP)
-    return
-end
-
-LoadZones(zones)
-
 Convars:RegisterCommand("wst_help", function()
     local player = Convars:GetCommandClient()
     local text = "Will's SurfTimer"
@@ -526,8 +455,7 @@ end
 
 
 function TeleportToStartZone(player)
-    local center, _, _ = CalculateBoxFromVectors(START_ZONE_V1, START_ZONE_V2)
-    player:SetAbsOrigin(center)
+    player:SetAbsOrigin(START_ZONE.center)
     player:SetVelocity(Vector(0, 0, 0))
 end
 
@@ -621,10 +549,11 @@ function Activate()
     WORLDENT:SetContextThink(nil, Tick, 0)
 
     ConvertTSpawnsToCTSpawns()
-    CreateStartZone(START_ZONE_V1, START_ZONE_V2)
-    CreateEndZone("1", END_ZONE_V1, END_ZONE_V2)
-    if END_ZONE_2_V1 ~= nil and END_ZONE_2_V2 ~= nil then
-        CreateEndZone("2", END_ZONE_2_V1, END_ZONE_2_V2)
+
+    START_ZONE:init(StartZone_OnStartTouch, StartZone_OnEndTouch)
+    END_ZONE:init(EndZone_OnStartTouch, EndZone_OnEndTouch)
+    if END_ZONE_2 ~= nil then
+        END_ZONE_2:init(EndZone_OnStartTouch, EndZone_OnEndTouch)
     end
 
     TimerOnce(1, function()
