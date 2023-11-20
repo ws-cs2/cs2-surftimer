@@ -160,13 +160,13 @@ function EndZone_OnStartTouch(a, b)
             FormatTime(time) .. "!"
         ScriptPrintMessageChatAll(ConvertTextToColoredChatString(newWRMessage))
 
-        FireGameEvent("cs_win_panel_round", {
-            ["funfact_token"] = "<font class='fontSize-xl' color='#5BEB60'>" ..
-                player.name .. " </font><font class='fontSize-l'>just set a new server record!</font>",
-        })
-        TimerOnce(10, function()
-            FireGameEvent("round_start", nil)
-        end, "clear_win_panel")
+        -- FireGameEvent("cs_win_panel_round", {
+        --     ["funfact_token"] = "<font class='fontSize-xl' color='#5BEB60'>" ..
+        --         player.name .. " </font><font class='fontSize-l'>just set a new server record!</font>",
+        -- })
+        -- TimerOnce(10, function()
+        --     FireGameEvent("round_start", nil)
+        -- end, "clear_win_panel")
     end
 end
 
