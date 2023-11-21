@@ -214,6 +214,12 @@ function CommandR(player, SendText)
     TeleportToStartZone(player)
 end
 
+-- !end
+function CommandEnd(player, SendText)
+    player.timer = nil
+    TeleportToEndZone(player)
+end
+
 -- !top
 function CommandTop(player, SendText)
     local topPlayers = getTopPlayers(10)
@@ -289,6 +295,7 @@ end
 function CommandChatHelp(player, SendText)
     SendText(player, "Will\'s SurfTimer Commands")
     SendText(player, "Type !r to teleport to the start zone (bind t wst_r)")
+    SendText(player, "Type !end to teleport to the end zone (bind t wst_end)")
     SendText(player, "Type !wr to see the server record")
     SendText(player, "Type !top to see the top 10 players on this map")
     SendText(player, "Type !cp to save your current position")
@@ -323,6 +330,11 @@ WST_COMMANDS = {
         console = CommandR,
         chat = CommandR,
         help = "Teleport to the start zone"
+    },
+    ["end"] = {
+        console = CommandEnd,
+        chat = CommandEnd,
+        help = "Teleport to the end zone"
     },
     ["top"] = {
         console = CommandTop,
@@ -385,6 +397,7 @@ WST_COMMANDS = {
 -- tables are not ordered unless they are array tables
 WST_COMMAND_ORDER = {
     "r",
+    "end",
     "top",
     "wr",
     "sr",
@@ -456,6 +469,13 @@ end
 
 function TeleportToStartZone(player)
     player:SetAbsOrigin(START_ZONE.center)
+    player:SetVelocity(Vector(0, 0, 0))
+end
+
+function TeleportToEndZone(player)
+    player.prac = true -- only way to stop the timer without glitches?
+    player.Timer = nil
+    player:SetAbsOrigin(END_ZONE.center)
     player:SetVelocity(Vector(0, 0, 0))
 end
 
