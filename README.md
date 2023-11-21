@@ -32,6 +32,7 @@ A experimental simple surf timer using the depricated Lua [VScript API](https://
  - FrozenWave | CS2 Surf - `frozen-wave.com:27015`
  - FR - Cs2serv - Surf #1 - `csgo.ac:27015`
  - [IG] 24/7 Surf | Imperfect Gamers | Rap Battles | Beta - `74.91.112.155:27015`
+ - [noil.lt] CS2 SURF 24/7 & TIMER! - `cs2.noil.lt`
 
 ## Discord
 
