@@ -39,6 +39,42 @@ function CalculateBoxFromVectors(v1, v2)
     return center, mins, maxs
 end
 
+function CalculateVectorsFromBox(center, mins, maxs)
+    -- Re-adjust mins and maxs to be absolute rather than relative to the center
+    local absoluteMins = center + mins
+    local absoluteMaxs = center + maxs
+
+    -- Determine the original vectors v1 and v2
+    local v1 = Vector(math.min(absoluteMins.x, absoluteMaxs.x), math.min(absoluteMins.y, absoluteMaxs.y), math.min(absoluteMins.z, absoluteMaxs.z))
+    local v2 = Vector(math.max(absoluteMins.x, absoluteMaxs.x), math.max(absoluteMins.y, absoluteMaxs.y), math.max(absoluteMins.z, absoluteMaxs.z))
+
+    return v1, v2
+end
+
+function CalculateBoxCorners(v1, v2)
+    -- Find the min and max for each dimension
+    local minX = math.min(v1.x, v2.x)
+    local maxX = math.max(v1.x, v2.x)
+    local minY = math.min(v1.y, v2.y)
+    local maxY = math.max(v1.y, v2.y)
+    local minZ = math.min(v1.z, v2.z)
+    local maxZ = math.max(v1.z, v2.z)
+
+    -- Create the eight corners
+    local corners = {
+        Vector(minX, minY, minZ), -- Corner 1
+        Vector(maxX, minY, minZ), -- Corner 2
+        Vector(minX, maxY, minZ), -- Corner 3
+        Vector(maxX, maxY, minZ), -- Corner 4
+        Vector(minX, minY, maxZ), -- Corner 5
+        Vector(maxX, minY, maxZ), -- Corner 6
+        Vector(minX, maxY, maxZ), -- Corner 7
+        Vector(maxX, maxY, maxZ)  -- Corner 8
+    }
+
+    return corners
+end
+
 function IsPointInBox(point, minVec, maxVec)
     return (point.x >= minVec.x and point.x <= maxVec.x) and
         (point.y >= minVec.y and point.y <= maxVec.y) and

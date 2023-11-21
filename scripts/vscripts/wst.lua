@@ -551,9 +551,12 @@ function Activate()
     ConvertTSpawnsToCTSpawns()
 
     START_ZONE:init(StartZone_OnStartTouch, StartZone_OnEndTouch)
+    START_ZONE:DrawZone("0 255 0")
     END_ZONE:init(EndZone_OnStartTouch, EndZone_OnEndTouch)
+    END_ZONE:DrawZone("255 0 0")
     if END_ZONE_2 ~= nil then
         END_ZONE_2:init(EndZone_OnStartTouch, EndZone_OnEndTouch)
+        END_ZONE:DrawZone("255 0 0")
     end
 
     TimerOnce(1, function()
