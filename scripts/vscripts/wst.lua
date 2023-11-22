@@ -15,7 +15,7 @@ require("wst/wst-timers")
 require("wst/wst-zones")
 
 print("--------------------")
-print("Will's SurfTimer " .. CURRENT_VERSION)
+print("[IG] Imperfect Gamers Powered by Will's Surftimer " .. CURRENT_VERSION)
 print("--------------------")
 local CURRENT_MAP = GetMapName()
 print("Map: " .. CURRENT_MAP)
@@ -200,7 +200,7 @@ LoadZones(zones)
 
 -- !version
 function CommandVersion(player, SendText)
-    SendText(player, "Will's SurfTimer " .. CURRENT_VERSION)
+    SendText(player, "[IG] Imperfect Gamers " .. CURRENT_VERSION)
 end
 
 -- !getpos
@@ -412,7 +412,7 @@ end
 
 Convars:RegisterCommand("wst_help", function()
     local player = Convars:GetCommandClient()
-    local text = "Will's SurfTimer"
+    local text = "[IG] Imperfect Gamers"
     local border = string.rep("-", string.len(text) + 4)
     local middleLine = "| " .. text .. " |"
     SendTextToClientConsole(player, border)
@@ -558,7 +558,7 @@ function Activate()
 
     TimerOnce(1, function()
         ScriptPrintMessageChatAll(ConvertTextToColoredChatString(
-            "<GREEN>Will's SurfTimer <GOLD>loaded"))
+            "<GREEN>[IG] Imperfect Gamers <GOLD>loaded"))
         ServerMessageHelp()
     end, "activation_msg")
     print("[WST] Activate.end")
@@ -625,7 +625,7 @@ end, nil)
 
 function ServerMessageHelp()
     ScriptPrintMessageChatAll(ConvertTextToColoredChatString(
-        "<GOLD>Type <GREEN>!help<GOLD> in chat for <GREEN>Will's SurfTimer<GOLD> commands"))
+        "<GOLD>Type <GREEN>!help<GOLD> in chat for <GREEN>[IG] Imperfect Gamers<GOLD> commands"))
     return 90
 end
 
