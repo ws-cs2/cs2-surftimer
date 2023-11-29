@@ -1,5 +1,6 @@
 scripts/wst_zones/surf_ace.txt
 scripts/wst_zones/surf_beginner.txt
+scripts/wst_zones/surf_benevolent.txt
 scripts/wst_zones/surf_deathstar.txt
 scripts/wst_zones/surf_kitsune.txt
 scripts/wst_zones/surf_kitsune_cs2.txt
