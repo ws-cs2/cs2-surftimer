@@ -1,0 +1,15 @@
+"Zones"
+{
+    "version" "_1.0"
+    "data"
+    {
+        "start"
+        {
+            "targetname" "z_stage1"
+        }
+        "end"
+        {
+            "targetname" "z_end"
+        }
+    }
+}
