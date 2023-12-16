@@ -5,11 +5,11 @@
     {
         "start"
         {
-            "targetname" "stage1_start"
+            "targetname" "s1_start"
         }
         "end"
         {
-            "targetname" "stage9_end"
+            "targetname" "map_end"
         }
     }
 }
