@@ -535,6 +535,11 @@ end
 function Activate()
     print("[WST] Activate.start")
 
+    for i, entity in pairs(Entities:FindAllByClassname("point_servercommand")) do
+        print("Removing point_servercommand")
+        entity:Kill()
+    end
+
     SurfCVars()
 
     if WORLDENT ~= nil then
