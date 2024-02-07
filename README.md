@@ -1,4 +1,4 @@
-# Will's CS2 SurfTimer
+# Will's CS2 SurfTimer (DEPRECIATED)
 
 A experimental simple surf timer using the depricated Lua [VScript API](https://cs2.poggu.me/dumped-data/vscript-list) & Metamod.
 
@@ -14,24 +14,10 @@ A experimental simple surf timer using the depricated Lua [VScript API](https://
 
 ## Servers
 
- - FutureGN Surf - `139.99.145.57:27019`
- - [KZG | CS2 Surf](https://join.kzg.gg/cs2-surf) - `103.212.224.45:27085`
- - [GFLCan.com] CS2 Surf Beginner- BETA - `92.119.148.31:27015`
- - CBGaming.Pro | Surf - Timer - Ranks - `101.100.143.138:27085`
- - Surf UTOPIA [ded-community.de] - `128.140.106.242:27021`
- - Surf UTOPIA (US) [ded-community.de] - `5.161.92.40:27015`
- - Surf UTOPIA (US#2) [ded-community.de] - `5.161.216.93:27015`
- - Surf KITSUNE [ded-community.de] - `128.140.106.242:27023`
- - Surf UTOPIA (US#2) [ded-community.de] - `5.161.216.93:27015`
- - Surf KITSUNE (US#2) [ded-community.de] - `5.161.216.93:27016`
- - CSPORTAL.sk | Strenge Surf - `cs.csportal.sk:27023`
- - [EU] Surf Easy  - `play.cs-portal.eu:27023`
- - [CZ/SK] Surf Easy - `play.cs-portal.eu:27024`
- - [TLS] 24/7 Surf Utopia - `139.177.152.6:27015`
- - CHILL.LV《 Surf Timer 》 # EU North - `89.201.4.164:27018`
- - FrozenWave | CS2 Surf - `frozen-wave.com:27015`
- - FR - Cs2serv - Surf #1 - `csgo.ac:27015`
- - [IG] 24/7 Surf | Imperfect Gamers | Rap Battles | Beta - `74.91.112.155:27015`
+- oce.surf AU | TURBO SURF (T1) au2.oce.surf:27015
+- oce.surf AU | Mixed Maps (T1-T4) au2.oce.surf:27018
+- oce.surf AU | VIP Surf au2.oce.surf:27016
+- oce.surf EU | Mixed Maps (T1-T4) eu1.oce.surf:26709
 
 ## Discord
 
