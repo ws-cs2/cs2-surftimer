@@ -1,5 +1,7 @@
 **OCE.SURF TIMER**
 
+I do not expect anyone to run this it lots of things are hardcoded for my server, however it may help the community build other timers
+
 Features:
 - Map, Stage, Bonus Timer
 - Replay system - main map, stage, bonus (!replay)
