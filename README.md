@@ -1,6 +1,8 @@
 **OCE.SURF TIMER**
 
-I do not expect anyone to run this it lots of things are hardcoded for my server, however it may help the community build other timers
+I do not expect anyone to run this it lots of things are hardcoded for my server, however it may help the community build other timers.
+
+You should instead run: https://github.com/DEAFPS/SharpTimer OR https://github.com/CS2Surf/Timer
 
 Features:
 - Map, Stage, Bonus Timer
