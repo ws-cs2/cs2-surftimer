@@ -1,0 +1,18 @@
+version: "3.8"
+
+services:
+  wst-database:
+    image: postgres:14
+    environment:
+      POSTGRES_DB: wst
+      POSTGRES_USER: wst
+      POSTGRES_PASSWORD: password
+    volumes:
+      - wst-database:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    expose:
+      - 5432
+
+volumes:
+  wst-database:

@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "WST": {
+      "commandName": "Project"
+    },
+    "Profile 1": {
+      "commandName": "Executable",
+      "executablePath": "powershell",
+      "commandLineArgs": "C:\\dev\\wst\\cs2-surftimer\\cssharp\\local_build.ps1"
+    }
+  }
+}
